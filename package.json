@@ -1,0 +1,17 @@
+{
+  "name": "annoyer-telegram-bot",
+  "version": "0.0.1",
+  "description": "A small telegram bot to annoy people on telegram",
+  "main": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "small",
+    "hobbie"
+  ],
+  "author": "Camilo Zambrano Votto",
+  "license": "MIT"
+}
