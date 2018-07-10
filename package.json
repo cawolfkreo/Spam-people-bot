@@ -4,6 +4,7 @@
   "description": "A small telegram bot to annoy people on telegram",
   "main": "bot.js",
   "scripts": {
+    "start": "node bot.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -15,6 +16,7 @@
   "author": "Camilo Zambrano Votto",
   "license": "MIT",
   "dependencies": {
+    "botgram": "^2.1.0",
     "dotenv": "^6.0.0"
   }
 }
