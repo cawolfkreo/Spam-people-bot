@@ -21,6 +21,8 @@ let states = []; //Array of states for user interaction
 
 let victims = []; //Array of victims
 
+let enabled = true; //wheter or not the bot will spam the victims.
+
 /* ======================================
 *				Commands
  ====================================== */
@@ -30,6 +32,28 @@ bot.command("start", "help", (msg, reply) => {
 		"a message to a group. The bot will always reply to that message with a random " +
 		"message with a list of messages created for that user. Right now only the bot admin " +
 		"is able to add users to the list of victims for the bot 😉");
+});
+
+bot.command("turnOff", (msg, reply) => {
+	if(msg.chat.type !== "user"){
+		reply.text("Sorry, commands are only for PM 👌😉");
+	} else if (msg.from.username === "Cawolf") {
+		enabled = false;
+		reply.text("The bot is now off 🤖 ⛔");
+	} else {
+		reply.text("You don't have permission to use that command :/");
+	}
+});
+
+bot.command("turnOn", (msg, reply) => {
+	if(msg.chat.type !== "user"){
+		reply.text("Sorry, commands are only for PM 👌😉");
+	} else if (msg.from.username === "Cawolf") {
+		enabled = true;
+		reply.text("The bot is now on 🤖 ✔");
+	} else {
+		reply.text("You don't have permission to use that command :/");
+	}
 });
 
 bot.command("add", (msg, reply) => {
@@ -45,7 +69,6 @@ bot.command("add", (msg, reply) => {
 	} else {
 		reply.text("You don't have permission to use that command :/");
 	}
-
 });
 
 bot.command("remove", (msg, reply) => {
@@ -74,6 +97,17 @@ bot.command("cancel", (msg, reply) => {
 	}
 });
 
+bot.command("status", (msg, reply) => {
+	if(msg.chat.type !== "user"){
+		reply.text("Sorry, commands are only for PM 👌😉");
+	} else {
+		let status = `The bot is currently ${(enabled? "on 🤖✔":"off 🤖⛔")}.` +
+		`\nThe bot is currently targeting ${victims.length===1?"one victim":`${victims.length} victims`}` +
+		"\nThe bot is happy to see you care for him and wishes you an awesome day 😊";
+		reply.text(status);
+	}
+});
+
 /* Default command:
 * This is called for all commands directed to the bot 
 * that are unknown for him. This is how the bot handles 
@@ -89,7 +123,16 @@ bot.command((msg, reply) => {
  ====================================== */
 
 bot.all((msg, reply, next) => {
-	next();
+	if(enabled){
+		const { found, user } = inVictims(msg.from.username);
+		if (found) {
+			const lista = user.list;
+			const index = Math.floor(Math.random() * lista.length);
+			reply.reply(msg).text(lista[index]);
+		}
+	} else {
+		next();
+	}
 });
 
 bot.text((msg, reply) => {
@@ -102,14 +145,6 @@ bot.text((msg, reply) => {
 		case "a2":
 			addVictimMessages(msg, reply);
 			break;
-		}
-	} else {//TODO: Mover todo esto de la victima al método all.
-		const { found, user } = inVictims(msg.from.username);
-		if (found) {
-			console.log(`El usuario ${user.username} es victima`);
-			const lista = user.list;
-			const index = Math.floor(Math.random() * lista.length);
-			reply.reply(msg).text(lista[index]);
 		}
 	}
 });
@@ -126,7 +161,6 @@ function inState(username) {
 		found = username === userInState.username;
 		user = userInState;
 	}
-
 	return { found, user };
 }
 
@@ -233,6 +267,3 @@ function findInList(list, username){
  ====================================== */
 
 console.log("Bot ready! :D");
-
-setInterval(()=> console.log("las victimas son:\n" + JSON.stringify(victims)),5000);
-setInterval(()=> console.log("El estado es:\n" + JSON.stringify(states)),5000);
