@@ -1,5 +1,5 @@
 {
-  "name": "annoyer-telegram-bot",
+  "name": "spammer-telegram-bot",
   "version": "0.0.1",
   "description": "A small telegram bot to annoy people on telegram",
   "main": "bot.js",
@@ -13,5 +13,8 @@
     "hobbie"
   ],
   "author": "Camilo Zambrano Votto",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^6.0.0"
+  }
 }
