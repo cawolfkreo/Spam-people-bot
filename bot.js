@@ -6,7 +6,7 @@ require("dotenv").config();
 const { TELEGRAM } = process.env;
 
 if (!TELEGRAM) {
-	console.log("Error: No TELEGRAM variable in enviorement.\nPerhaps you forgot to load it?");
+	console.log("Error: No TELEGRAM variable in enviorement.\nPerhaps you forgot to add it?");
 	process.exit(1);
 }
 
@@ -17,7 +17,7 @@ const bot = botgram(TELEGRAM);
 *			Global Variables
  ====================================== */
 
-let states = [];
+let states = []; //Array of states for user interaction
 
 let victims = []; //Array of victims
 
@@ -34,12 +34,14 @@ bot.command("start", "help", (msg, reply) => {
 
 bot.command("add", (msg, reply) => {
 	let { found } = inState(msg.from.username);
-	if (!found && msg.from.username === "Cawolf") {
+	if(msg.chat.type !== "user"){
+		reply.text("Sorry, commands are only for PM 👌😉");
+	} else if (!found && msg.from.username === "Cawolf") {
 		states.push({
-			userName: msg.from.username,
+			username: msg.from.username,
 			state: "a1"
 		});
-		reply.text("Send me the @handler of the user you want to add");
+		reply.text("Send me the @username of the user you want to add");
 	} else {
 		reply.text("You don't have permission to use that command :/");
 	}
@@ -52,10 +54,23 @@ bot.command("remove", (msg, reply) => {
 });
 
 bot.command("list", (msg, reply) => {
-	if (msg.from.userName === "Cawolf") {
+	if(msg.chat.type !== "user"){
+		reply.text("Sorry, commands are only for PM 👌😉");
+	} else if (msg.from.username === "Cawolf") {
 		reply.text(`The list of victims is:\n${victimsToString()}`);
 	} else {
 		reply.text("You don't have permission to use that command :/");
+	}
+});
+
+bot.command("cancel", (msg, reply) => {
+	if(msg.chat.type !== "user"){
+		reply.text("Sorry, commands are only for PM 👌😉");
+	} else if(msg.from.username === "Cawolf"){
+		changeState(msg.from.username,"quit");
+		reply.text("Correct! you just cancelled. Anything else I can help you with? 😄");
+	} else {
+		reply.reply(msg).text("Sorry, you don't have permission to use this bot 😢");
 	}
 });
 
@@ -85,12 +100,13 @@ bot.text((msg, reply) => {
 			addVictimHandler(msg, reply);
 			break;
 		case "a2":
+			addVictimMessages(msg, reply);
 			break;
 		}
-	} else {
+	} else {//TODO: Mover todo esto de la victima al método all.
 		const { found, user } = inVictims(msg.from.username);
 		if (found) {
-			console.log(`El usuario ${user.userName} es victima`);
+			console.log(`El usuario ${user.username} es victima`);
 			const lista = user.list;
 			const index = Math.floor(Math.random() * lista.length);
 			reply.reply(msg).text(lista[index]);
@@ -102,24 +118,24 @@ bot.text((msg, reply) => {
 *			Other Functions
  ====================================== */
 
-function inState(userName) {
+function inState(username) {
 	let found = false, user = null;
 
 	for (let index = 0; index < states.length && !index; index++) {
 		const userInState = states[index];
-		found = userName === userInState.userName;
+		found = username === userInState.username;
 		user = userInState;
 	}
 
 	return { found, user };
 }
 
-function inVictims(userName) {
+function inVictims(username) {
 	let found = false, user = null;
 
 	for (let index = 0; index < victims.length && !index; index++) {
 		const userInState = victims[index];
-		found = userName === userInState.userName;
+		found = username === userInState.username;
 		user = userInState;
 	}
 
@@ -128,18 +144,87 @@ function inVictims(userName) {
 
 function addVictimHandler(msg, reply) {
 	const handlerExp = /^@[\w]{5,}$/; //RegEx to match telegram alias
+	if (!handlerExp.test(msg.text)) {
+		reply.text("That is not a correct @username. Please provide a correct one 😢");
+	} else {
+		const { found } = inVictims(msg.text);
+		if(found){
+			reply.text(`The user ${msg.text} is already a victim. If you want to remove him use /remove.`);
+		} else {
+			const newVictimUsername = msg.text.replace("@","");
+			victims.push({
+				username:newVictimUsername,
+				messages: []
+			});
+			
+			reply.text("User added!! now send me all the replies you want that user to have on"+
+			" a message one by one. When you are done use /cancel to finish.");
+
+			changeState(msg.from.username,"a2", newVictimUsername);
+		}
+	}
+}
+
+function addVictimMessages(msg, reply) {
+	const result = getStateParams(msg.from.username);
+	if(result === ""){
+		reply.text("I couldn't find the victim. /cancel, /remove and try again 😢");
+	} else {
+		const { params } = result;
+		let response = findInList(victims, params);
+		if(response) {
+			let { index } = response;
+			victims[index].messages.push(msg.text);
+		}
+		reply.reply(msg).text("¡¡Message added!! type /cancel if you are done or keep sending messages if you want to add more");
+	}
+}
+
+function changeState(username, state, params) {
+	let found = false, i = 0;
+
+	while(i < states.length && !found){
+		found = states[i].username === username;
+		i++;
+	}
+
+	i--; //after the loop the index is not on position n but in position n+1.
+
+	if(found && state === "quit"){
+		states = states.splice(i);
+	} else {
+		states[i] = { username, state, params };
+	}
+}
+
+function getStateParams(username){
+	let result = findInList(states,username);
+	return result? { params: result.user.params, index: result.index } : "";
 }
 
 function victimsToString() {
 	if (victims.length !== 0) {
 		let res = "", index = 1;
 		victims.forEach(victim => {
-			res += index + ". @" + victim.userName + "\n";
+			res += index + ". @" + victim.username + "\n";
 		});
 		return res;
 	} else {
 		return "No victims yet 😉";
 	}
+}
+
+function findInList(list, username){
+	let found = false, user = null, index = 0;
+	for (; index < list.length && !found; index++) {
+		const currentUser = list[index];
+		if(username === currentUser.username){
+			user = currentUser;
+			found = true;
+		}
+	}
+	index--; //index ends at the position n+1 after the cicle
+	return found? { user, index } : null;
 }
 
 /* ======================================
@@ -148,3 +233,6 @@ function victimsToString() {
  ====================================== */
 
 console.log("Bot ready! :D");
+
+setInterval(()=> console.log("las victimas son:\n" + JSON.stringify(victims)),5000);
+setInterval(()=> console.log("El estado es:\n" + JSON.stringify(states)),5000);
