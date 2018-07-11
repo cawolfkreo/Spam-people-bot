@@ -35,7 +35,7 @@ bot.command("start", "help", (msg, reply) => {
 });
 
 bot.command("turnOff", (msg, reply) => {
-	if(msg.chat.type !== "user"){
+	if (msg.chat.type !== "user") {
 		reply.text("Sorry, commands are only for PM 👌😉");
 	} else if (msg.from.username === "Cawolf") {
 		enabled = false;
@@ -46,7 +46,7 @@ bot.command("turnOff", (msg, reply) => {
 });
 
 bot.command("turnOn", (msg, reply) => {
-	if(msg.chat.type !== "user"){
+	if (msg.chat.type !== "user") {
 		reply.text("Sorry, commands are only for PM 👌😉");
 	} else if (msg.from.username === "Cawolf") {
 		enabled = true;
@@ -58,7 +58,7 @@ bot.command("turnOn", (msg, reply) => {
 
 bot.command("add", (msg, reply) => {
 	let { found } = inState(msg.from.username);
-	if(msg.chat.type !== "user"){
+	if (msg.chat.type !== "user") {
 		reply.text("Sorry, commands are only for PM 👌😉");
 	} else if (!found && msg.from.username === "Cawolf") {
 		states.push({
@@ -72,12 +72,23 @@ bot.command("add", (msg, reply) => {
 });
 
 bot.command("remove", (msg, reply) => {
-	console.log("Mensaje: " + msg);
-	reply.text("Hello!!!");
+	if (msg.chat.type !== "user") {
+		reply.text("Sorry, commands are only for PM 👌😉");
+	} else if (msg.from.username === "Cawolf") {
+		let args = msg.args();
+		if(args !== ""){
+			removeVictims(args);
+			reply.text("I will remove that victim 😎");
+		} else {
+			reply.text("you didn't give any params to this command. use /list and try again 😢");
+		}
+	} else {
+		reply.text("You don't have permission to use that command :/");
+	}
 });
 
 bot.command("list", (msg, reply) => {
-	if(msg.chat.type !== "user"){
+	if (msg.chat.type !== "user") {
 		reply.text("Sorry, commands are only for PM 👌😉");
 	} else if (msg.from.username === "Cawolf") {
 		reply.text(`The list of victims is:\n${victimsToString()}`);
@@ -87,10 +98,10 @@ bot.command("list", (msg, reply) => {
 });
 
 bot.command("cancel", (msg, reply) => {
-	if(msg.chat.type !== "user"){
+	if (msg.chat.type !== "user") {
 		reply.text("Sorry, commands are only for PM 👌😉");
-	} else if(msg.from.username === "Cawolf"){
-		changeState(msg.from.username,"quit");
+	} else if (msg.from.username === "Cawolf") {
+		changeState(msg.from.username, "quit");
 		reply.text("Correct! you just cancelled. Anything else I can help you with? 😄");
 	} else {
 		reply.reply(msg).text("Sorry, you don't have permission to use this bot 😢");
@@ -98,12 +109,12 @@ bot.command("cancel", (msg, reply) => {
 });
 
 bot.command("status", (msg, reply) => {
-	if(msg.chat.type !== "user"){
+	if (msg.chat.type !== "user") {
 		reply.text("Sorry, commands are only for PM 👌😉");
 	} else {
-		let status = `The bot is currently ${(enabled? "on 🤖✔":"off 🤖⛔")}.` +
-		`\nThe bot is currently targeting ${victims.length===1?"one victim":`${victims.length} victims`}` +
-		"\nThe bot is happy to see you care for him and wishes you an awesome day 😊";
+		let status = `The bot is currently ${(enabled ? "on 🤖 ✔" : "off 🤖 ⛔")}.` +
+			`\nThe bot is currently targeting ${victims.length === 1 ? "one victim" : `${victims.length} victims`}` +
+			"\nThe bot is happy to see you care for him and wishes you an awesome day 😊";
 		reply.text(status);
 	}
 });
@@ -123,16 +134,13 @@ bot.command((msg, reply) => {
  ====================================== */
 
 bot.all((msg, reply, next) => {
-	if(enabled){
-		const { found, user } = inVictims(msg.from.username);
-		if (found) {
-			const lista = user.list;
-			const index = Math.floor(Math.random() * lista.length);
-			reply.reply(msg).text(lista[index]);
-		}
-	} else {
-		next();
+	const { found, user } = inVictims(msg.from.username);
+	if (enabled && found && user.messages.length !== 0) {
+		const lista = user.messages;
+		const index = Math.floor(Math.random() * lista.length);
+		reply.reply(msg).text(lista[index]);
 	}
+	next();
 });
 
 bot.text((msg, reply) => {
@@ -154,59 +162,73 @@ bot.text((msg, reply) => {
  ====================================== */
 
 function inState(username) {
-	let found = false, user = null;
-
-	for (let index = 0; index < states.length && !index; index++) {
-		const userInState = states[index];
-		found = username === userInState.username;
-		user = userInState;
+	const response = findInList(states, username);
+	let found = false, user = null, index = null;
+	if (response) {
+		found = response.user ? true : false;
+		user = found ? response.user : null;
+		index = found ? response.index : null;
 	}
-	return { found, user };
+
+	return { found, user, index };
 }
 
 function inVictims(username) {
-	let found = false, user = null;
-
-	for (let index = 0; index < victims.length && !index; index++) {
-		const userInState = victims[index];
-		found = username === userInState.username;
-		user = userInState;
+	const response = findInList(victims, username);
+	let found = false, user = null, index = null;
+	if (response) {
+		found = response.user ? true : false;
+		user = found ? response.user : null;
+		index = found ? response.index : null;
 	}
 
-	return { found, user };
+	return { found, user, index };
+}
+
+function findInList(list, username) {
+	let found = false, user = null, index = 0;
+	for (; index < list.length && !found; index++) {
+		const currentUser = list[index];
+		if (username.toLowerCase() === currentUser.username.toLowerCase()) {
+			user = currentUser;
+			found = true;
+		}
+	}
+	index--; //index ends at the position n+1 after the cicle
+	return found ? { user, index } : null;
 }
 
 function addVictimHandler(msg, reply) {
 	const handlerExp = /^@[\w]{5,}$/; //RegEx to match telegram alias
 	if (!handlerExp.test(msg.text)) {
-		reply.text("That is not a correct @username. Please provide a correct one 😢");
+		reply.text("The message you sen't was not a correct @username. Please provide a correct one 😢\nOr type /cancel if you don't want to add anyone 😜");
 	} else {
 		const { found } = inVictims(msg.text);
-		if(found){
-			reply.text(`The user ${msg.text} is already a victim. If you want to remove him use /remove.`);
+		if (found) {
+			reply.text(`The user ${msg.text} is already a victim. If you want to remove him use /remove.\nType /cancel if you don't want to add anyone 😜`);
 		} else {
-			const newVictimUsername = msg.text.replace("@","");
+			const newVictimUsername = msg.text.replace("@", "");
 			victims.push({
-				username:newVictimUsername,
+				username: newVictimUsername,
 				messages: []
 			});
-			
-			reply.text("User added!! now send me all the replies you want that user to have on"+
-			" a message one by one. When you are done use /cancel to finish.");
 
-			changeState(msg.from.username,"a2", newVictimUsername);
+			reply.text("User added!! now send me all the replies you want that user to have on" +
+				" a message one by one. When you are done use /cancel to finish.");
+
+			changeState(msg.from.username, "a2", newVictimUsername);
 		}
 	}
 }
 
 function addVictimMessages(msg, reply) {
 	const result = getStateParams(msg.from.username);
-	if(result === ""){
+	if (result === "") {
 		reply.text("I couldn't find the victim. /cancel, /remove and try again 😢");
 	} else {
 		const { params } = result;
 		let response = findInList(victims, params);
-		if(response) {
+		if (response) {
 			let { index } = response;
 			victims[index].messages.push(msg.text);
 		}
@@ -214,26 +236,46 @@ function addVictimMessages(msg, reply) {
 	}
 }
 
-function changeState(username, state, params) {
-	let found = false, i = 0;
+function removeVictims(indexes) {
+	indexes = indexes.split(" ");
+	indexes = indexes.sort((a, b) => {
+		if (parseInt(a) > parseInt(b)) {
+			return 1;
+		} else if (parseInt(a) < parseInt(b)) {
+			return -1;
+		} else {
+			return 0;
+		}
+	});
+	while (indexes.length > 0) {
+		const current = indexes.pop();
+		if (!isNaN(parseInt(current))) {
+			let head, tail;
+			const index = parseInt(current) - 1;
 
-	while(i < states.length && !found){
-		found = states[i].username === username;
-		i++;
-	}
-
-	i--; //after the loop the index is not on position n but in position n+1.
-
-	if(found && state === "quit"){
-		states = states.splice(i);
-	} else {
-		states[i] = { username, state, params };
+			head = victims.slice(0, index);
+			tail = victims.slice(index + 1);
+			victims = head.concat(tail);
+		}
 	}
 }
 
-function getStateParams(username){
-	let result = findInList(states,username);
-	return result? { params: result.user.params, index: result.index } : "";
+function changeState(username, state, params) {
+	let { found, index } = inState(username);
+
+	if (found && state === "quit") {
+		let head, tail;
+		head = states.slice(0, index);
+		tail = states.slice(index + 1);
+		states = head.concat(tail);
+	} else {
+		states[index] = { username, state, params };
+	}
+}
+
+function getStateParams(username) {
+	let result = findInList(states, username);
+	return result ? { params: result.user.params, index: result.index } : "";
 }
 
 function victimsToString() {
@@ -246,19 +288,6 @@ function victimsToString() {
 	} else {
 		return "No victims yet 😉";
 	}
-}
-
-function findInList(list, username){
-	let found = false, user = null, index = 0;
-	for (; index < list.length && !found; index++) {
-		const currentUser = list[index];
-		if(username === currentUser.username){
-			user = currentUser;
-			found = true;
-		}
-	}
-	index--; //index ends at the position n+1 after the cicle
-	return found? { user, index } : null;
 }
 
 /* ======================================
