@@ -28,10 +28,11 @@ let enabled = true; //wheter or not the bot will spam the victims.
  ====================================== */
 
 bot.command("start", "help", (msg, reply) => {
-	reply.text("This bot helps annoying people by spamming a message to a user after he sends " +
-		"a message to a group. The bot will always reply to that message with a random " +
-		"message with a list of messages created for that user. Right now only the bot admin " +
-		"is able to add users to the list of victims for the bot 😉");
+	reply.text("This bot helps annoying people by spamming a random text from a list " +
+		"of messages to a user (or 'victim'). When the bot sees a message made by a victim"+
+		"on a group chat, a random response will be picked and send as a reply to that"+
+		" victim's message. Right now only the bot admin is able to add users to the list"+
+		" of victims for the bot 😉");
 });
 
 bot.command("turnOff", (msg, reply) => {
