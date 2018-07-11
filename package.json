@@ -1,8 +1,13 @@
 {
   "name": "spammer-telegram-bot",
   "version": "0.0.2",
+  "private": true,
   "description": "A small telegram bot to annoy people on telegram",
   "main": "bot.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/cawolfkreo/Spam-people-bot.git"
+  },
   "scripts": {
     "start": "node bot.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -17,6 +22,7 @@
   "license": "MIT",
   "dependencies": {
     "botgram": "^2.1.0",
-    "dotenv": "^6.0.0"
+    "dotenv": "^6.0.0",
+    "express": "^4.16.3"
   }
 }

@@ -14,7 +14,8 @@ if(!ADMIN){
 	console.log("Error: No ADMIN variable in enviorement.\nPerhaps you forgot to include it?");
 	process.exit(1);
 }
-
+const utilities = require("./imports/utilities");
+require("./imports/server");
 const botgram = require("botgram");
 const bot = botgram(TELEGRAM);
 
@@ -46,7 +47,7 @@ bot.command("turnOff", (msg, reply) => {
 	} else if (msg.from.username === ADMIN) {
 		enabled = false;
 		reply.text("The bot is now off 🤖 ⛔");
-		console.log(`[${dateNow()}] Bot is Off!`);
+		console.log(`[${utilities.dateNow()}] Bot is Off!`);
 	} else {
 		reply.text("You don't have permission to use that command :/");
 	}
@@ -58,7 +59,7 @@ bot.command("turnOn", (msg, reply) => {
 	} else if (msg.from.username === ADMIN) {
 		enabled = true;
 		reply.text("The bot is now on 🤖 ✔");
-		console.log(`[${dateNow()}] Bot is On!`);
+		console.log(`[${utilities.dateNow()}] Bot is On!`);
 	} else {
 		reply.text("You don't have permission to use that command :/");
 	}
@@ -300,21 +301,8 @@ function victimsToString() {
 	}
 }
 
-/* This function generates a new date with the current
-* time and parses it into a string for logging
- purposes.*/
-function dateNow(){
-	let rightNow = new Date();
-	let hour = rightNow.getHours() % 12;
-	let min = rightNow.getMinutes();
-	let seconds = rightNow.getSeconds();
-	let milis = rightNow.getMilliseconds();
-	let res = rightNow.toISOString().slice(0,10).replace(/-/g,"/");
-	return `${res} - ${hour}:${min}:${seconds}:${milis}`;
-}
-
 /* ======================================
 *				Start-Up 
 *				  Info
  ====================================== */
-console.log(`[${dateNow()}] Bot is ready! :D`);
+console.log(`[${utilities.dateNow()}] Bot is ready! :D`);
