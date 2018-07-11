@@ -76,7 +76,7 @@ bot.command("remove", (msg, reply) => {
 		reply.text("Sorry, commands are only for PM 👌😉");
 	} else if (msg.from.username === "Cawolf") {
 		let args = msg.args();
-		if(args !== ""){
+		if (args !== "") {
 			removeVictims(args);
 			reply.text("I will remove that victim 😎");
 		} else {
@@ -186,16 +186,20 @@ function inVictims(username) {
 }
 
 function findInList(list, username) {
-	let found = false, user = null, index = 0;
-	for (; index < list.length && !found; index++) {
-		const currentUser = list[index];
-		if (username.toLowerCase() === currentUser.username.toLowerCase()) {
-			user = currentUser;
-			found = true;
+	if (username) {
+		let found = false, user = null, index = 0;
+		for (; index < list.length && !found; index++) {
+			const currentUser = list[index];
+			if (username.toLowerCase() === currentUser.username.toLowerCase()) {
+				user = currentUser;
+				found = true;
+			}
 		}
+		index--; //index ends at the position n+1 after the cicle
+		return found ? { user, index } : null;
+	} else {
+		return null;
 	}
-	index--; //index ends at the position n+1 after the cicle
-	return found ? { user, index } : null;
 }
 
 function addVictimHandler(msg, reply) {
