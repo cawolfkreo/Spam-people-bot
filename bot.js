@@ -3,10 +3,15 @@
  ====================================== */
 
 require("dotenv").config();
-const { TELEGRAM } = process.env;
+const { TELEGRAM, ADMIN } = process.env;
 
 if (!TELEGRAM) {
-	console.log("Error: No TELEGRAM variable in enviorement.\nPerhaps you forgot to add it?");
+	console.log("Error: No TELEGRAM variable in enviorement.\nPerhaps you forgot to include it?");
+	process.exit(1);
+}
+
+if(!ADMIN){
+	console.log("Error: No ADMIN variable in enviorement.\nPerhaps you forgot to include it?");
 	process.exit(1);
 }
 
@@ -38,9 +43,10 @@ bot.command("start", "help", (msg, reply) => {
 bot.command("turnOff", (msg, reply) => {
 	if (msg.chat.type !== "user") {
 		reply.text("Sorry, commands are only for PM 👌😉");
-	} else if (msg.from.username === "Cawolf") {
+	} else if (msg.from.username === ADMIN) {
 		enabled = false;
 		reply.text("The bot is now off 🤖 ⛔");
+		console.log(`[${dateNow()}] Bot is Off!`);
 	} else {
 		reply.text("You don't have permission to use that command :/");
 	}
@@ -49,9 +55,10 @@ bot.command("turnOff", (msg, reply) => {
 bot.command("turnOn", (msg, reply) => {
 	if (msg.chat.type !== "user") {
 		reply.text("Sorry, commands are only for PM 👌😉");
-	} else if (msg.from.username === "Cawolf") {
+	} else if (msg.from.username === ADMIN) {
 		enabled = true;
 		reply.text("The bot is now on 🤖 ✔");
+		console.log(`[${dateNow()}] Bot is On!`);
 	} else {
 		reply.text("You don't have permission to use that command :/");
 	}
@@ -61,7 +68,7 @@ bot.command("add", (msg, reply) => {
 	let { found } = inState(msg.from.username);
 	if (msg.chat.type !== "user") {
 		reply.text("Sorry, commands are only for PM 👌😉");
-	} else if (!found && msg.from.username === "Cawolf") {
+	} else if (!found && msg.from.username === ADMIN) {
 		states.push({
 			username: msg.from.username,
 			state: "a1"
@@ -77,7 +84,7 @@ bot.command("add", (msg, reply) => {
 bot.command("remove", (msg, reply) => {
 	if (msg.chat.type !== "user") {
 		reply.text("Sorry, commands are only for PM 👌😉");
-	} else if (msg.from.username === "Cawolf") {
+	} else if (msg.from.username === ADMIN) {
 		let args = msg.args();
 		if (args !== "") {
 			removeVictims(args);
@@ -93,7 +100,7 @@ bot.command("remove", (msg, reply) => {
 bot.command("list", (msg, reply) => {
 	if (msg.chat.type !== "user") {
 		reply.text("Sorry, commands are only for PM 👌😉");
-	} else if (msg.from.username === "Cawolf") {
+	} else if (msg.from.username === ADMIN) {
 		reply.text(`The list of victims is:\n${victimsToString()}`);
 	} else {
 		reply.text("You don't have permission to use that command :/");
@@ -103,7 +110,7 @@ bot.command("list", (msg, reply) => {
 bot.command("cancel", (msg, reply) => {
 	if (msg.chat.type !== "user") {
 		reply.text("Sorry, commands are only for PM 👌😉");
-	} else if (msg.from.username === "Cawolf") {
+	} else if (msg.from.username === ADMIN) {
 		changeState(msg.from.username, "quit");
 		reply.text("Correct! you just cancelled. Anything else I can help you with? 😄");
 	} else {
@@ -293,9 +300,21 @@ function victimsToString() {
 	}
 }
 
+/* This function generates a new date with the current
+* time and parses it into a string for logging
+ purposes.*/
+function dateNow(){
+	let rightNow = new Date();
+	let hour = rightNow.getHours() % 12;
+	let min = rightNow.getMinutes();
+	let seconds = rightNow.getSeconds();
+	let milis = rightNow.getMilliseconds();
+	let res = rightNow.toISOString().slice(0,10).replace(/-/g,"/");
+	return `${res} - ${hour}:${min}:${seconds}:${milis}`;
+}
+
 /* ======================================
 *				Start-Up 
 *				  Info
  ====================================== */
-
-console.log("Bot ready! :D");
+console.log(`[${dateNow()}] Bot is ready! :D`);
