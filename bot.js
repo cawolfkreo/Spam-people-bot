@@ -66,6 +66,8 @@ bot.command("add", (msg, reply) => {
 			state: "a1"
 		});
 		reply.text("Send me the @username of the user you want to add");
+	} else if(found){
+		reply.text("you're still doing another command.\nDid you forgot to type /cancel 🤔?");
 	} else {
 		reply.text("You don't have permission to use that command :/");
 	}
@@ -133,7 +135,7 @@ bot.command((msg, reply) => {
 *				Messages
  ====================================== */
 
-bot.all((msg, reply, next) => {
+bot.message((msg, reply, next) => {
 	const { found, user } = inVictims(msg.from.username);
 	if (enabled && found && user.messages.length !== 0) {
 		const lista = user.messages;
@@ -186,20 +188,16 @@ function inVictims(username) {
 }
 
 function findInList(list, username) {
-	if (username) {
-		let found = false, user = null, index = 0;
-		for (; index < list.length && !found; index++) {
-			const currentUser = list[index];
-			if (username.toLowerCase() === currentUser.username.toLowerCase()) {
-				user = currentUser;
-				found = true;
-			}
+	let found = false, user = null, index = 0;
+	for (; index < list.length && !found; index++) {
+		const currentUser = list[index];
+		if (username.toLowerCase() === currentUser.username.toLowerCase()) {
+			user = currentUser;
+			found = true;
 		}
-		index--; //index ends at the position n+1 after the cicle
-		return found ? { user, index } : null;
-	} else {
-		return null;
 	}
+	index--; //index ends at the position n+1 after the cicle
+	return found ? { user, index } : null;
 }
 
 function addVictimHandler(msg, reply) {
