@@ -5,13 +5,13 @@
 * time and parses it into a string for logging
  purposes.*/
 function dateNow() {
-	let rightNow = new Date();
-	let hour = rightNow.getHours() % 12;
-	let min = rightNow.getMinutes();
-	let seconds = rightNow.getSeconds();
-	let milis = rightNow.getMilliseconds();
-	let res = rightNow.toISOString().slice(0, 10).replace(/-/g, "/");
-	return `${res} - ${hour}:${min}:${seconds}:${milis}`;
+	const rightNow = new Date();
+	const hour = rightNow.getHours() % 12;
+	const min = rightNow.getMinutes();
+	const seconds = rightNow.getSeconds();
+	const milis = rightNow.getMilliseconds();
+	const res = rightNow.toISOString().slice(0, 10).replace(/-/g, "/");
+	return `${res} - ${hour}:${min}:${seconds}:${milis} ${hour > 12? "pm":"am"}`;
 }
 
 /* =============================
