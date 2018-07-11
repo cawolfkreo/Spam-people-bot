@@ -28,6 +28,7 @@ Right now the deployed versión of this bot only accepts commands from me, but i
 * **Node.Js:** For the JS coding of the bot.<br />
 * **Botgram:** As the wrapper for the telegram API (you can fin it [here](https://github.com/botgram/botgram)).<br />
 * **dotenv:** To load the .env file variables into the process enviroment.<br />
+* **Express:** For a webserver that can check the bot.<br />
 
 </p>
 </details>
@@ -36,10 +37,10 @@ Right now the deployed versión of this bot only accepts commands from me, but i
 I had one of those fights with someone on telegram when we both ended up spamming "no u" to one another. Because of if I thought of making this bot so I could win said fight and also spam other people.
 
 ## Getting Started
-If you want to deploy this bot by yourself first you need to prepare a few things. First of all the bot needs two enviroment variables to work. Since one of the npm modules the project requires is `"dotenv"` then you can create a file called `.env` with the variables there and they will be loaded. If you don't want to do that you can add those variables later in any other way you want.
+If you want to deploy this bot by yourself first you need to prepare a few things. First of all the bot needs three enviroment variables to work. Since one of the npm modules the project requires is `"dotenv"` then you can create a file called `.env` with the variables there and they will be loaded. If you don't want to do that you can add those variables later in any other way you want.
 
 ### Env Variables
-Now, the env variables you need are the "_username_" of your `@username` on telegram, you would give that value to a variable called `ADMIN` and an api token telegram will give you for your bot. Before you go for the api key remember it is `TELEGRAM`.
+Now, the env variables you need are the "_username_" of your `@username` on telegram, you would give that value to a variable called `ADMIN`, the port you want the webserver to run in a variable called `PORT` and an api token telegram will give you for your bot. Before you go for the api key remember the name of the env variable is `TELEGRAM`.
 
 ### Telegram Api Key
 On telegram search for `@BotFather` and talk to him. type `/help` if you don't know what to do. Here you can make your bot, he will ask you for some info of the bot and then it will give you the Api key. If you want to give your bot a description, image, etc. Then here you can also do that.
