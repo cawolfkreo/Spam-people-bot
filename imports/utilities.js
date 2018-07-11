@@ -6,7 +6,7 @@
  purposes.*/
 function dateNow() {
 	const rightNow = new Date();
-	const hour = rightNow.getHours() % 12;
+	const hour = rightNow.getHours();
 	const min = rightNow.getMinutes();
 	const seconds = rightNow.getSeconds();
 	const milis = rightNow.getMilliseconds();
