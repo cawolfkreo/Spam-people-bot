@@ -280,9 +280,9 @@ function getStateParams(username) {
 
 function victimsToString() {
 	if (victims.length !== 0) {
-		let res = "", index = 1;
-		victims.forEach(victim => {
-			res += index + ". @" + victim.username + "\n";
+		let res = "";
+		victims.forEach((victim, index) => {
+			res += (index + 1) + ". @" + victim.username + "\n";
 		});
 		return res;
 	} else {
