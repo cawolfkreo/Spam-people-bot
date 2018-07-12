@@ -41,7 +41,7 @@ bot.command("start", "help", (msg, reply) => {
 		" of victims for the bot 😉");
 });
 
-bot.command("turnOff", (msg, reply) => {
+bot.command(/^turnoff/i, (msg, reply) => {
 	if (msg.chat.type !== "user") {
 		reply.text("Sorry, commands are only for PM 👌😉");
 	} else if (msg.from.username === ADMIN) {
@@ -53,12 +53,12 @@ bot.command("turnOff", (msg, reply) => {
 	}
 });
 
-bot.command("turnOn", (msg, reply) => {
+bot.command(/^turnon/i, (msg, reply) => {
 	if (msg.chat.type !== "user") {
 		reply.text("Sorry, commands are only for PM 👌😉");
 	} else if (msg.from.username === ADMIN) {
 		enabled = true;
-		reply.text("The bot is now on 🤖 ✔");
+		reply.text("The bot is now on 🤖 ✅");
 		console.log(`[${utilities.dateNow()}] Bot is On!`);
 	} else {
 		reply.text("You don't have permission to use that command :/");
@@ -123,10 +123,22 @@ bot.command("status", (msg, reply) => {
 	if (msg.chat.type !== "user") {
 		reply.text("Sorry, commands are only for PM 👌😉");
 	} else {
-		let status = `The bot is currently ${(enabled ? "on 🤖 ✔" : "off 🤖 ⛔")}.` +
+		let status = `The bot is currently ${(enabled ? "on 🤖 ✅" : "off 🤖 ⛔")}.` +
 			`\nThe bot is currently targeting ${victims.length === 1 ? "one victim" : `${victims.length} victims`}` +
 			"\nThe bot is happy to see you care for him and wishes you an awesome day 😊";
 		reply.text(status);
+	}
+});
+
+bot.command("about", (msg, reply) => {
+	if (msg.chat.type !== "user") {
+		reply.text("Sorry, commands are only for PM 👌😉");
+	} else {
+		let aboutThisBot = "this bot was made with 🤣 and some good intentions by @Cawolf."+
+		"\nIf you want to know more of how this bot was made the source code is"+
+		" [here](https://github.com/cawolfkreo/Spam-people-bot)."+
+		"\n ¡Have a nice day! 😄";
+		reply.markdown(aboutThisBot);
 	}
 });
 
@@ -198,7 +210,7 @@ function inVictims(username) {
 
 function findInList(list, username) {
 	let found = false, user = null, index = 0;
-	for (; index < list.length && !found; index++) {
+	for (; index < username && list.length && !found; index++) {
 		const currentUser = list[index];
 		if (username.toLowerCase() === currentUser.username.toLowerCase()) {
 			user = currentUser;
