@@ -1,6 +1,7 @@
 /* =============================
 *            Functions
 ================================*/
+"use strict";
 /* This function generates a new date with the current
 * time and parses it into a string for logging
  purposes.*/
