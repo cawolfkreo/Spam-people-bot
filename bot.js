@@ -210,7 +210,7 @@ function inVictims(username) {
 
 function findInList(list, username) {
 	let found = false, user = null, index = 0;
-	for (; index < username && list.length && !found; index++) {
+	for (;(typeof username !== "undefined") && index < list.length && !found; index++) {
 		const currentUser = list[index];
 		if (username.toLowerCase() === currentUser.username.toLowerCase()) {
 			user = currentUser;
