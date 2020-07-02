@@ -11,7 +11,7 @@ if (!TELEGRAM) {
 	process.exit(1);
 }
 
-if(!ADMIN){
+if (!ADMIN) {
 	console.log("Error: No ADMIN variable in enviorement.\nPerhaps you forgot to include it?");
 	process.exit(1);
 }
@@ -36,9 +36,9 @@ let enabled = true; //wheter or not the bot will spam the victims.
 
 bot.command("start", "help", (msg, reply) => {
 	reply.text("This bot helps annoying people by spamming a random text from a list " +
-		"of messages to a user (or 'victim'). When the bot sees a message made by a victim"+
-		"on a group chat, a random response will be picked and send as a reply to that"+
-		" victim's message. Right now only the bot admin is able to add users to the list"+
+		"of messages to a user (or 'victim'). When the bot sees a message made by a victim" +
+		"on a group chat, a random response will be picked and send as a reply to that" +
+		" victim's message. Right now only the bot admin is able to add users to the list" +
 		" of victims for the bot 😉");
 });
 
@@ -76,7 +76,7 @@ bot.command("add", (msg, reply) => {
 			state: "a1"
 		});
 		reply.text("Send me the @username of the user you want to add");
-	} else if(found){
+	} else if (found) {
 		reply.text("you're still doing another command.\nDid you forgot to type /cancel 🤔?");
 	} else {
 		reply.text("You don't have permission to use that command :/");
@@ -135,10 +135,10 @@ bot.command("about", (msg, reply) => {
 	if (msg.chat.type !== "user") {
 		reply.text("Sorry, commands are only for PM 👌😉");
 	} else {
-		let aboutThisBot = "this bot was made with 🤣 and some good intentions by @Cawolf."+
-		"\nIf you want to know more of how this bot was made the source code is"+
-		" [here](https://github.com/cawolfkreo/Spam-people-bot)."+
-		"\n ¡Have a nice day! 😄";
+		let aboutThisBot = "this bot was made with 🤣 and some good intentions by @Cawolf." +
+			"\nIf you want to know more of how this bot was made the source code is" +
+			" [here](https://github.com/cawolfkreo/Spam-people-bot)." +
+			"\n Have a nice day! 😄";
 		reply.markdown(aboutThisBot);
 	}
 });
@@ -171,12 +171,12 @@ bot.text((msg, reply) => {
 	const { found, user } = inState(msg.from.username);
 	if (found && msg.chat.type === "user") {
 		switch (user.state) {
-		case "a1":
-			addVictimHandler(msg, reply);
-			break;
-		case "a2":
-			addVictimMessages(msg, reply);
-			break;
+			case "a1":
+				addVictimHandler(msg, reply);
+				break;
+			case "a2":
+				addVictimMessages(msg, reply);
+				break;
 		}
 	}
 });
@@ -211,7 +211,7 @@ function inVictims(username) {
 
 function findInList(list, username) {
 	let found = false, user = null, index = 0;
-	for (;(typeof username !== "undefined") && index < list.length && !found; index++) {
+	for (; (typeof username !== "undefined") && index < list.length && !found; index++) {
 		const currentUser = list[index];
 		if (username.toLowerCase() === currentUser.username.toLowerCase()) {
 			user = currentUser;
@@ -256,7 +256,7 @@ function addVictimMessages(msg, reply) {
 			let { index } = response;
 			victims[index].messages.push(msg.text);
 		}
-		reply.reply(msg).text("¡¡Message added!! type /cancel if you are done or keep sending messages if you want to add more");
+		reply.reply(msg).text("Message added!! type /cancel if you are done or keep sending messages if you want to add more");
 	}
 }
 
