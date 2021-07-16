@@ -17,7 +17,16 @@ const utilities = require("./utilities");
 *			Server config
  ====================================== */
 const app = express();
-app.get("/",(req, res)=>{
+
+app.use((_req, res, next) => {
+    res.append("Access-Control-Allow-Origin", ["https://keepnavion.cawolf.repl.co/"]);
+    res.append("Access-Control-Allow-Methods", "GET");
+    res.append("Access-Control-Allow-Headers", "Content-Type");
+	res.append("Warning", "Don't use this if you are not the owner of Navi");
+    next();
+});
+
+app.get("/",(_req, res)=>{
 	res.json({ version: packageInfo.version });
 });
 
