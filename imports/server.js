@@ -21,7 +21,7 @@ const app = express();
 const NaviAllowed = "keepnavion.cawolf.repl.co";
 
 app.use((_req, res, next) => {
-    res.append("Access-Control-Allow-Origin", [`https://${NaviAllowed}`, `http://${NaviAllowed}`]);
+    res.append("Access-Control-Allow-Origin", [`https://${NaviAllowed}/`, `http://${NaviAllowed}/`]);
     res.append("Access-Control-Allow-Methods", "GET");
     res.append("Access-Control-Allow-Headers", "Content-Type");
 	res.append("Warning", "Don't use this if you are not the owner of Navi");
