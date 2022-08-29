@@ -18,7 +18,12 @@ const utilities = require("./utilities");
  ====================================== */
 const app = express();
 
-app.use((_req, res, next) => {
+app.use((req, res, next) => {
+	if (req.path !== "/") {
+		console.log(`[${utilities.dateNow()}] Called some other path.`);
+		return next();
+	}
+	console.log(`[${utilities.dateNow()}] Called the main path!`);
     res.append("Access-Control-Allow-Origin", ["https://keepnavion.cawolf.repl.co"]);
     res.append("Access-Control-Allow-Methods", "GET");
     res.append("Access-Control-Allow-Headers", "Content-Type");
