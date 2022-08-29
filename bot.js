@@ -165,6 +165,11 @@ bot.command("status", (ctx) => {
 	}
 });
 
+bot.command("ping", ctx => {
+	const options = { reply_to_message_id: ctx.message.message_id };
+	ctx.reply(`Pong! 🤖 ${(enabled ? "✅" : "⛔")}.`, options);
+});
+
 bot.command("about", (ctx) => {
 	if (ctx.chat.type !== "private") {
 		ctx.reply("Sorry, commands are only for PM 👌😉");
