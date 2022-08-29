@@ -129,7 +129,7 @@ bot.command("remove", async (ctx) => {
 	}
 
 	removeVictims(args);
-	ctx.reply(`I will remove ${args.length !== 1? "those victoms" : "that victim"} 😎`);
+	ctx.reply(`I removed ${args.length !== 1? "those victims" : "that victim"} 😎`);
 
 });
 
@@ -167,6 +167,7 @@ bot.command("status", (ctx) => {
 
 bot.command("ping", ctx => {
 	const options = { reply_to_message_id: ctx.message.message_id };
+	console.log(`Pong! 🤖 ${(enabled ? "✅" : "⛔")}.`, options);
 	ctx.reply(`Pong! 🤖 ${(enabled ? "✅" : "⛔")}.`, options);
 });
 
