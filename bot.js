@@ -32,6 +32,31 @@ let victims = []; //Array of victims
 let enabled = true; //wheter or not the bot will spam the victims.
 
 /* ======================================
+*				Middleware
+ ====================================== */
+
+bot.use((ctx, next) => {
+	if (ctx.chat.type === "private") {
+		next();
+		return;
+	}
+
+	const validator = /^\/\w*(@|\w)*/;
+	if (!validator.test(ctx.message.text)) {
+		next();
+		return;
+	}
+	
+	const command = ctx.message.text.replace(/^\/\w*/, "");
+	const botnameValidator = new RegExp(`^@${ctx.me}`);
+
+	if (botnameValidator.test(command)) {
+		next();
+		return;
+	}
+});
+
+/* ======================================
 *				Commands
  ====================================== */
 
