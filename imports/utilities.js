@@ -15,9 +15,20 @@ function dateNow() {
 	return `${res} - ${hour}:${min}:${seconds}:${milis} ${hour > 12? "pm":"am"}`;
 }
 
+/**
+ * Returns the arguments from a command message
+ * @param {string} message The full text message with the args included
+ * @returns An array of all the args passed on the message
+ */
+function getArgsFromMsg(message) {
+	const [, ...args] = message.split(" ");
+	return args;
+}
+
 /* =============================
 *            Exports
 ================================*/
 module.exports = {
-	dateNow
+	dateNow,
+	getArgsFromMsg
 };

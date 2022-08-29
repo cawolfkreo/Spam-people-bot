@@ -21,8 +21,8 @@
   "author": "Camilo Zambrano Votto",
   "license": "MIT",
   "dependencies": {
-    "botgram": "^2.2.0",
     "dotenv": "^6.2.0",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "telegraf": "^4.9.0"
   }
 }

@@ -30,8 +30,20 @@ app.get("/",(_req, res)=>{
 	res.json({ version: packageInfo.version });
 });
 
-const server = app.listen(PORT,()=>{
-	const host = server.address().address;
-	const port = server.address().port;
-	console.log(`[${utilities.dateNow()}] Express web server ready! :D - on host ${host} and port ${port}`);
-});
+function startServerWithHooks(botMiddleware) {
+	app.use(botMiddleware);
+	startServer();
+}
+
+function startServer() {
+	const server = app.listen(PORT,()=>{
+		const host = server.address().address;
+		const port = server.address().port;
+		console.log(`[${utilities.dateNow()}] Express web server ready! :D - on host ${host} and port ${port}`);
+	});
+}
+
+module.exports = {
+	startServer,
+	startServerWithHooks
+}

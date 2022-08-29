@@ -4,21 +4,22 @@
  ====================================== */
 
 require("dotenv").config();
-const { TELEGRAM, ADMIN } = process.env;
+const { TELEGRAM, ADMIN, URL } = process.env;
 
 if (!TELEGRAM) {
-	console.log("Error: No TELEGRAM variable in enviorement.\nPerhaps you forgot to include it?");
+	console.error("Error: No TELEGRAM variable in enviorement.\nPerhaps you forgot to include it?");
 	process.exit(1);
 }
 
 if (!ADMIN) {
-	console.log("Error: No ADMIN variable in enviorement.\nPerhaps you forgot to include it?");
+	console.error("Error: No ADMIN variable in enviorement.\nPerhaps you forgot to include it?");
 	process.exit(1);
 }
+
 const utilities = require("./imports/utilities");
-require("./imports/server");
-const botgram = require("botgram");
-const bot = botgram(TELEGRAM);
+const { startServer, startServerWithHooks } = require("./imports/server");
+const { Telegraf } = require("telegraf");
+const bot = new Telegraf(TELEGRAM);
 
 /* ======================================
 *			Global Variables
@@ -34,112 +35,120 @@ let enabled = true; //wheter or not the bot will spam the victims.
 *				Commands
  ====================================== */
 
-bot.command("start", "help", (msg, reply) => {
-	reply.text("This bot helps annoying people by spamming a random text from a list " +
-		"of messages to a user (or 'victim'). When the bot sees a message made by a victim" +
-		"on a group chat, a random response will be picked and send as a reply to that" +
-		" victim's message. Right now only the bot admin is able to add users to the list" +
-		" of victims for the bot 😉");
+bot.victimsToString
+
+bot.command(["start", "help"], (ctx) => {
+	ctx.reply("This bot helps annoying people by spamming a random text from a list " +
+		"of messages to a user (or 'victim'). When the bot sees a message made by a victim " +
+		"on a group chat, a random response will be picked and send as a reply to that " +
+		"victim's message. Right now only the bot admin is able to add users to the bot " +
+		"list of victims 😉");
 });
 
-bot.command(/^turnoff/i, (msg, reply) => {
-	if (msg.chat.type !== "user") {
-		reply.text("Sorry, commands are only for PM 👌😉");
-	} else if (msg.from.username === ADMIN) {
+bot.command("turnoff", (ctx) => {
+	ctx.chat.type
+	if (ctx.chat.type !== "private") {
+		ctx.reply("Sorry, commands are only for PM 👌😉" + ctx.from.username);
+	} else if (ctx.from.username === ADMIN) {
 		enabled = false;
-		reply.text("The bot is now off 🤖 ⛔");
+		ctx.reply("The bot is now off 🤖 ⛔");
 		console.log(`[${utilities.dateNow()}] Bot is Off!`);
 	} else {
-		reply.text("You don't have permission to use that command :/");
+		ctx.reply("You don't have permission to use that command :/");
 	}
 });
 
-bot.command(/^turnon/i, (msg, reply) => {
-	if (msg.chat.type !== "user") {
-		reply.text("Sorry, commands are only for PM 👌😉");
-	} else if (msg.from.username === ADMIN) {
+bot.command("turnon", (ctx) => {
+	if (ctx.chat.type !== "private") {
+		ctx.reply("Sorry, commands are only for PM 👌😉");
+	} else if (ctx.from.username === ADMIN) {
 		enabled = true;
-		reply.text("The bot is now on 🤖 ✅");
+		ctx.reply("The bot is now on 🤖 ✅");
 		console.log(`[${utilities.dateNow()}] Bot is On!`);
 	} else {
-		reply.text("You don't have permission to use that command :/");
+		ctx.reply("You don't have permission to use that command :/");
 	}
 });
 
-bot.command("add", (msg, reply) => {
-	let { found } = inState(msg.from.username);
-	if (msg.chat.type !== "user") {
-		reply.text("Sorry, commands are only for PM 👌😉");
-	} else if (!found && msg.from.username === ADMIN) {
+bot.command("add", (ctx) => {
+	let { found } = inState(ctx.from.username);
+	if (ctx.chat.type !== "private") {
+		ctx.reply("Sorry, commands are only for PM 👌😉");
+	} else if (!found && ctx.from.username === ADMIN) {
 		states.push({
-			username: msg.from.username,
+			username: ctx.from.username,
 			state: "a1"
 		});
-		reply.text("Send me the @username of the user you want to add");
+		ctx.reply("Send me the @username of the user you want to add");
 	} else if (found) {
-		reply.text("you're still doing another command.\nDid you forgot to type /cancel 🤔?");
+		ctx.reply("you're still doing another command.\nDid you forgot to type /cancel 🤔?");
 	} else {
-		reply.text("You don't have permission to use that command :/");
+		ctx.reply("You don't have permission to use that command :/");
 	}
 });
 
-bot.command("remove", (msg, reply) => {
-	if (msg.chat.type !== "user") {
-		reply.text("Sorry, commands are only for PM 👌😉");
-	} else if (msg.from.username === ADMIN) {
-		let args = msg.args();
-		if (args !== "") {
-			removeVictims(args);
-			reply.text("I will remove that victim 😎");
-		} else {
-			reply.text("you didn't give any params to this command. use /list and try again 😢");
-		}
+bot.command("remove", async (ctx) => {
+	if (ctx.chat.type !== "private") {
+		ctx.reply("Sorry, commands are only for PM 👌😉");
+		return;
+	}
+	if (ctx.from.username !== ADMIN) {
+		ctx.reply("You don't have permission to use that command :/");
+		return;
+	}
+
+	const args = utilities.getArgsFromMsg(ctx.message.text);
+	if (args.length <= 0) {
+		ctx.reply("you didn't give any params to this command. use /list and try again 😢");
+		return;
+	}
+
+	removeVictims(args);
+	ctx.reply(`I will remove ${args.length !== 1? "those victoms" : "that victim"} 😎`);
+
+});
+
+bot.command("list", (ctx) => {
+	if (ctx.chat.type !== "private") {
+		ctx.reply("Sorry, commands are only for PM 👌😉");
+	} else if (ctx.from.username === ADMIN) {
+		ctx.reply(`The list of victims is:\n${victimsToString()}`);
 	} else {
-		reply.text("You don't have permission to use that command :/");
+		ctx.reply("You don't have permission to use that command :/");
 	}
 });
 
-bot.command("list", (msg, reply) => {
-	if (msg.chat.type !== "user") {
-		reply.text("Sorry, commands are only for PM 👌😉");
-	} else if (msg.from.username === ADMIN) {
-		reply.text(`The list of victims is:\n${victimsToString()}`);
+bot.command("cancel", (ctx) => {
+	if (ctx.chat.type !== "private") {
+		ctx.reply("Sorry, commands are only for PM 👌😉");
+	} else if (ctx.from.username === ADMIN) {
+		changeState(ctx.from.username, "quit");
+		ctx.reply("Correct! you just cancelled. Anything else I can help you with? 😄");
 	} else {
-		reply.text("You don't have permission to use that command :/");
+		ctx.reply("Sorry, you don't have permission to use this bot 😢", {reply_to_message_id: ctx.message.message_id});
 	}
 });
 
-bot.command("cancel", (msg, reply) => {
-	if (msg.chat.type !== "user") {
-		reply.text("Sorry, commands are only for PM 👌😉");
-	} else if (msg.from.username === ADMIN) {
-		changeState(msg.from.username, "quit");
-		reply.text("Correct! you just cancelled. Anything else I can help you with? 😄");
-	} else {
-		reply.reply(msg).text("Sorry, you don't have permission to use this bot 😢");
-	}
-});
-
-bot.command("status", (msg, reply) => {
-	if (msg.chat.type !== "user") {
-		reply.text("Sorry, commands are only for PM 👌😉");
+bot.command("status", (ctx) => {
+	if (ctx.chat.type !== "private") {
+		ctx.reply("Sorry, commands are only for PM 👌😉");
 	} else {
 		let status = `The bot is currently ${(enabled ? "on 🤖 ✅" : "off 🤖 ⛔")}.` +
-			`\nThe bot is currently targeting ${victims.length === 1 ? "one victim" : `${victims.length} victims`}` +
-			"\nThe bot is happy to see you care for him and wishes you an awesome day 😊";
-		reply.text(status);
+		`\nThe bot is currently targeting ${victims.length === 1 ? "one victim" : `${victims.length} victims`}` +
+		"\nThe bot is happy to see you care for him and wishes you an awesome day 😊";
+		ctx.reply(status);
 	}
 });
 
-bot.command("about", (msg, reply) => {
-	if (msg.chat.type !== "user") {
-		reply.text("Sorry, commands are only for PM 👌😉");
+bot.command("about", (ctx) => {
+	if (ctx.chat.type !== "private") {
+		ctx.reply("Sorry, commands are only for PM 👌😉");
 	} else {
 		let aboutThisBot = "this bot was made with 🤣 and some good intentions by @Cawolf." +
-			"\nIf you want to know more of how this bot was made the source code is" +
-			" [here](https://github.com/cawolfkreo/Spam-people-bot)." +
-			"\n Have a nice day! 😄";
-		reply.markdown(aboutThisBot);
+		"\nIf you want to know more of how this bot was made the source code is" +
+		" [here](https://github.com/cawolfkreo/Spam-people-bot)." +
+		"\n Have a nice day! 😄";
+		ctx.replyWithMarkdown(aboutThisBot);
 	}
 });
 
@@ -148,8 +157,8 @@ bot.command("about", (msg, reply) => {
 * that are unknown for him. This is how the bot handles 
 * bad or unexpected commands.
 */
-bot.command((msg, reply) => {
-	reply.reply(msg).text("I don't understand that command 😞");
+bot.command((ctx) => {
+	ctx.reply("I don't understand that command 😞", {reply_to_message_id: ctx.message.message_id});
 });
 
 
@@ -157,25 +166,24 @@ bot.command((msg, reply) => {
 *				Messages
  ====================================== */
 
-bot.message((msg, reply, next) => {
-	const { found, user } = inVictims(msg.from.username);
+bot.on("message", (ctx, next) => {
+	const { found, user } = inVictims(ctx.from.username);
 	if (enabled && found && user.messages.length !== 0) {
 		const lista = user.messages;
 		const index = Math.floor(Math.random() * lista.length);
-		reply.reply(msg).text(lista[index]);
+		ctx.reply(lista[index], {reply_to_message_id: ctx.message.message_id});
 	}
 	next();
 });
-
-bot.text((msg, reply) => {
-	const { found, user } = inState(msg.from.username);
-	if (found && msg.chat.type === "user") {
+bot.on("text", (ctx) => {
+	const { found, user } = inState(ctx.from.username);
+	if (found && ctx.chat.type === "private") {
 		switch (user.state) {
 			case "a1":
-				addVictimHandler(msg, reply);
+				addVictimHandler(ctx);
 				break;
 			case "a2":
-				addVictimMessages(msg, reply);
+				addVictimMessages(ctx);
 				break;
 		}
 	}
@@ -222,76 +230,57 @@ function findInList(list, username) {
 	return found ? { user, index } : null;
 }
 
-function addVictimHandler(msg, reply) {
+function addVictimHandler(ctx) {
 	const handlerExp = /^@[\w]{5,}$/; //RegEx to match telegram alias
-	if (!handlerExp.test(msg.text)) {
-		reply.text("The message you sen't was not a correct @username. Please provide a correct one 😢\nOr type /cancel if you don't want to add anyone 😜");
+	const msgText = ctx.message.text;
+	if (!handlerExp.test(msgText)) {
+		ctx.reply("The message you sent was not a correct @username. Please provide a correct one 😢\nOr type /cancel if you don't want to add anyone 😜");
 	} else {
-		const { found } = inVictims(msg.text);
+		const { found } = inVictims(msgText);
 		if (found) {
-			reply.text(`The user ${msg.text} is already a victim. If you want to remove him use /remove.\nType /cancel if you don't want to add anyone 😜`);
+			ctx.reply(`The user ${msgText} is already a victim. If you want to remove him use /remove.\nOr type /cancel if you don't want to add anyone 😜`);
 		} else {
-			const newVictimUsername = msg.text.replace("@", "");
+			const newVictimUsername = msgText.replace("@", "");
 			victims.push({
 				username: newVictimUsername,
 				messages: []
 			});
 
-			reply.text("User added!! now send me all the replies you want that user to have on" +
-				" a message one by one. When you are done use /cancel to finish.");
+			ctx.reply("User added! now send me all the replies you want that user to have on" +
+				" a message, one by one. When you are done use /cancel to finish🤖.");
 
-			changeState(msg.from.username, "a2", newVictimUsername);
+			changeState(ctx.from.username, "a2", newVictimUsername);
 		}
 	}
 }
 
-function addVictimMessages(msg, reply) {
-	const result = getStateParams(msg.from.username);
+function addVictimMessages(ctx) {
+	const result = getStateParams(ctx.from.username);
 	if (result === "") {
-		reply.text("I couldn't find the victim. /cancel, /remove and try again 😢");
+		ctx.reply("I couldn't find the victim. Please use /cancel, then /remove and try again 😢");
 	} else {
 		const { params } = result;
-		let response = findInList(victims, params);
-		if (response) {
-			let { index } = response;
-			victims[index].messages.push(msg.text);
+		let searchResult = findInList(victims, params);
+		if (searchResult) {
+			let { index } = searchResult;
+			victims[index].messages.push(ctx.message.text);
 		}
-		reply.reply(msg).text("Message added!! type /cancel if you are done or keep sending messages if you want to add more");
+		const response = "Message added!! type /cancel if you are done or keep sending messages if you want to add more";
+		ctx.reply(response, {reply_to_message_id: ctx.message.message_id});
 	}
 }
 
 function removeVictims(indexes) {
-	indexes = indexes.split(" ");
-	indexes = indexes.sort((a, b) => {
-		if (parseInt(a) > parseInt(b)) {
-			return 1;
-		} else if (parseInt(a) < parseInt(b)) {
-			return -1;
-		} else {
-			return 0;
-		}
-	});
-	while (indexes.length > 0) {
-		const current = indexes.pop();
-		if (!isNaN(parseInt(current))) {
-			let head, tail;
-			const index = parseInt(current) - 1;
+	const numIndexes = indexes.map(elem => parseInt(elem)-1);
 
-			head = victims.slice(0, index);
-			tail = victims.slice(index + 1);
-			victims = head.concat(tail);
-		}
-	}
+	victims = victims.filter((_, index) => !numIndexes.includes(index));
 }
 
 function changeState(username, state, params) {
 	let { found, index } = inState(username);
 
 	if (found && state === "quit") {
-		let head, tail;
-		head = states.slice(0, index);
-		tail = states.slice(index + 1);
-		states = head.concat(tail);
+		states.splice(index, 1);
 	} else {
 		states[index] = { username, state, params };
 	}
@@ -318,4 +307,24 @@ function victimsToString() {
 *				Start-Up 
 *				  Info
  ====================================== */
-console.log(`[${utilities.dateNow()}] Bot is ready! :D`);
+async function startBot() {
+	let startType = "";
+
+	if (URL) {
+		const hookMiddleware = await bot.createWebhook({ domain: URL });
+		startServerWithHooks(hookMiddleware)
+		startType = "web hooks";
+	}
+	else {
+		startServer();
+		bot.launch();
+		startType = "long polling";
+	}
+
+	console.log(`[${utilities.dateNow()}] Bot is ready! :D\t\t-\tUsing ${startType}`);
+}
+startBot();
+
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'));
+process.once('SIGTERM', () => bot.stop('SIGTERM'));
