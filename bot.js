@@ -65,8 +65,6 @@ bot.use((ctx, next) => {
 *				Commands
  ====================================== */
 
-bot.victimsToString
-
 bot.command(["start", "help"], (ctx) => {
 	ctx.reply("This bot helps annoying people by spamming a random text from a list " +
 		"of messages to a user (or 'victim'). When the bot sees a message made by a victim " +
@@ -230,6 +228,21 @@ bot.on("text", (ctx) => {
 				break;
 		}
 	}
+});
+
+/* ======================================
+*			Error Handling
+ ====================================== */
+
+bot.catch((err, ctx) => {
+	const chatErr = ctx.chat;
+	const metaMessage = `Error found in ${chatErr.type} chat ${chatErr.title??chatErr.username}`;
+	const message = `The message that triggered the errot was: ${ctx.message.text}`;
+	const ctxObj = JSON.stringify(ctx, null, 2);
+	printError(err);
+	printError(metaMessage);
+	printError(message);
+	printError(ctxObj);
 });
 
 /* ======================================
