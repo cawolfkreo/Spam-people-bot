@@ -1,6 +1,6 @@
 {
   "name": "spammer-telegram-bot",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "A small telegram bot to annoy people on telegram",
   "main": "bot.js",
