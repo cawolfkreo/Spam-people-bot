@@ -4,7 +4,6 @@ const fs = require("node:fs/promises");
 
 const { printLog, printError } = require("./utilities");
 
-const path = "data/";
 
 /**
  * Tries to parse the string passed as
@@ -23,13 +22,13 @@ function TryParse(jsonString) {
 
 /**
  * Creates the persistance object
- * @param {String} fileName The name of the file to store.
+ * @param {String} dirPath The path of the directory where the file will be stored.
+ * @param {String} fullPath The path of the file to store.
  * @returns The peristance object
  */
-async function CreatePersistance (fileName) {
-    await fs.mkdir(path, {recursive: true});                //Makes sure the folder exist
+async function CreatePersistance (dirPath, fullPath) {
+    await fs.mkdir(dirPath, {recursive: true});                //Makes sure the folder exist
 
-    const fullPath = path.concat(fileName);
     const encoding = "utf-8";
     const file = await fs.readFile(fullPath, {encoding , flag: "w+"});   //Reads the file if exist
 

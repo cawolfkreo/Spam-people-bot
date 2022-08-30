@@ -5,6 +5,7 @@
 
 require("dotenv").config();
 const { Telegraf } = require("telegraf");
+const path = require("path");
 
 const { TELEGRAM, ADMIN, URL } = process.env;
 
@@ -364,7 +365,10 @@ function victimsToString() {
 async function startBot() {
 	let startType = "";
 
-	persistance = await CreatePersistance("botStorage.json");
+	const dirPath = path.join(__dirname, "data");
+	const fullPath = path.join(dirPath, "botStorage.json");
+
+	persistance = await CreatePersistance(dirPath, fullPath);
 	persistance.set(ENABLED_KEY, persistance.get(ENABLED_KEY) ?? true);
 	persistance.set(VICTIMS_KEY, persistance.get(VICTIMS_KEY) ?? []);
 	persistance.set(STATES_KEY, persistance.get(STATES_KEY) ?? []);
