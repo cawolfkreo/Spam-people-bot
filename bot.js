@@ -4,6 +4,8 @@
  ====================================== */
 
 require("dotenv").config();
+const { Telegraf } = require("telegraf");
+
 const { TELEGRAM, ADMIN, URL } = process.env;
 
 if (!TELEGRAM) {
@@ -18,18 +20,20 @@ if (!ADMIN) {
 
 const { printLog, printError, getArgsFromMsg } = require("./imports/utilities");
 const { startServer, startServerWithHooks } = require("./imports/server");
-const { Telegraf } = require("telegraf");
+const { CreatePersistance } = require("./imports/persistance");
 const bot = new Telegraf(TELEGRAM);
 
 /* ======================================
 *			Global Variables
  ====================================== */
 
-let states = []; //Array of states for user interaction
+const ENABLED_KEY = "enabled";
 
-let victims = []; //Array of victims
+const VICTIMS_KEY = "victims"
 
-let enabled = true; //wheter or not the bot will spam the victims.
+const STATES_KEY = "states";
+
+let persistance = {};
 
 /* ======================================
 *				Middleware
@@ -70,12 +74,12 @@ bot.command(["start", "help"], (ctx) => {
 		"list of victims 😉");
 });
 
-bot.command("turnoff", (ctx) => {
+bot.command("turnoff", async (ctx) => {
 	ctx.chat.type
 	if (ctx.chat.type !== "private") {
 		ctx.reply("Sorry, commands are only for PM 👌😉" + ctx.from.username);
 	} else if (ctx.from.username === ADMIN) {
-		enabled = false;
+		persistance.set(ENABLED_KEY, false);
 		ctx.reply("The bot is now off 🤖 ⛔");
 		printLog("Bot is Off!");
 	} else {
@@ -87,7 +91,7 @@ bot.command("turnon", (ctx) => {
 	if (ctx.chat.type !== "private") {
 		ctx.reply("Sorry, commands are only for PM 👌😉");
 	} else if (ctx.from.username === ADMIN) {
-		enabled = true;
+		persistance.set(ENABLED_KEY, true);
 		ctx.reply("The bot is now on 🤖 ✅");
 		printLog("Bot is On!");
 	} else {
@@ -100,10 +104,12 @@ bot.command("add", (ctx) => {
 	if (ctx.chat.type !== "private") {
 		ctx.reply("Sorry, commands are only for PM 👌😉");
 	} else if (!found && ctx.from.username === ADMIN) {
+		let states = persistance.get(STATES_KEY);
 		states.push({
 			username: ctx.from.username,
 			state: "a1"
 		});
+		persistance.set(STATES_KEY, states);
 		ctx.reply("Send me the @username of the user you want to add");
 	} else if (found) {
 		ctx.reply("you're still doing another command.\nDid you forgot to type /cancel 🤔?");
@@ -158,6 +164,8 @@ bot.command("status", (ctx) => {
 	if (ctx.chat.type !== "private") {
 		ctx.reply("Sorry, commands are only for PM 👌😉");
 	} else {
+		const enabled = persistance.get(ENABLED_KEY);
+		const victims = persistance.get(VICTIMS_KEY);
 		let status = `The bot is currently ${(enabled ? "on 🤖 ✅" : "off 🤖 ⛔")}.` +
 		`\nThe bot is currently targeting ${victims.length === 1 ? "one victim" : `${victims.length} victims`}` +
 		"\nThe bot is happy to see you care for him and wishes you an awesome day 😊";
@@ -166,6 +174,7 @@ bot.command("status", (ctx) => {
 });
 
 bot.command("ping", ctx => {
+	const enabled = persistance.get(ENABLED_KEY);
 	const options = { reply_to_message_id: ctx.message.message_id };
 	printLog(`Pong! 🤖 ${(enabled ? "✅" : "⛔")}.`);
 	ctx.reply(`Pong! 🤖 ${(enabled ? "✅" : "⛔")}.`, options);
@@ -199,6 +208,7 @@ bot.command((ctx) => {
 
 bot.on("message", (ctx, next) => {
 	const { found, user } = inVictims(ctx.from.username);
+	const enabled = persistance.get(ENABLED_KEY);
 	if (enabled && found && user.messages.length !== 0) {
 		const lista = user.messages;
 		const index = Math.floor(Math.random() * lista.length);
@@ -226,6 +236,7 @@ bot.on("text", (ctx) => {
  ====================================== */
 
 function inState(username) {
+	const states = persistance.get(STATES_KEY);
 	const response = findInList(states, username);
 	let found = false, user = null, index = null;
 	if (response) {
@@ -238,6 +249,7 @@ function inState(username) {
 }
 
 function inVictims(username) {
+	const victims = persistance.get(VICTIMS_KEY);
 	const response = findInList(victims, username);
 	let found = false, user = null, index = null;
 	if (response) {
@@ -273,11 +285,12 @@ function addVictimHandler(ctx) {
 			ctx.reply(`The user ${msgText} is already a victim. If you want to remove him use /remove.\nOr type /cancel if you don't want to add anyone 😜`);
 		} else {
 			const newVictimUsername = msgText.replace("@", "");
+			const victims = persistance.get(VICTIMS_KEY);
 			victims.push({
 				username: newVictimUsername,
 				messages: []
 			});
-
+			persistance.set(VICTIMS_KEY, victims);
 			ctx.reply("User added! now send me all the replies you want that user to have on" +
 				" a message, one by one. When you are done use /cancel to finish🤖.");
 
@@ -292,11 +305,13 @@ function addVictimMessages(ctx) {
 		ctx.reply("I couldn't find the victim. Please use /cancel, then /remove and try again 😢");
 	} else {
 		const { params } = result;
+		const victims = persistance.get(VICTIMS_KEY);
 		let searchResult = findInList(victims, params);
 		if (searchResult) {
 			let { index } = searchResult;
 			victims[index].messages.push(ctx.message.text);
 		}
+		persistance.set(VICTIMS_KEY, victims);
 		const response = "Message added!! type /cancel if you are done or keep sending messages if you want to add more";
 		ctx.reply(response, {reply_to_message_id: ctx.message.message_id});
 	}
@@ -305,25 +320,32 @@ function addVictimMessages(ctx) {
 function removeVictims(indexes) {
 	const numIndexes = indexes.map(elem => parseInt(elem)-1);
 
+	let victims = persistance.get(VICTIMS_KEY);
+
 	victims = victims.filter((_, index) => !numIndexes.includes(index));
+	persistance.set(VICTIMS_KEY, victims);
 }
 
 function changeState(username, state, params) {
 	let { found, index } = inState(username);
+	const states = persistance.get(STATES_KEY);
 
 	if (found && state === "quit") {
 		states.splice(index, 1);
 	} else {
 		states[index] = { username, state, params };
 	}
+	persistance.set(STATES_KEY, states);
 }
 
 function getStateParams(username) {
+	const states = persistance.get(STATES_KEY);
 	let result = findInList(states, username);
 	return result ? { params: result.user.params, index: result.index } : "";
 }
 
 function victimsToString() {
+	const victims = persistance.get(VICTIMS_KEY);
 	if (victims.length !== 0) {
 		let res = "";
 		victims.forEach((victim, index) => {
@@ -342,6 +364,11 @@ function victimsToString() {
 async function startBot() {
 	let startType = "";
 
+	persistance = await CreatePersistance("botStorage.json");
+	persistance.set(ENABLED_KEY, persistance.get(ENABLED_KEY) ?? true);
+	persistance.set(VICTIMS_KEY, persistance.get(VICTIMS_KEY) ?? []);
+	persistance.set(STATES_KEY, persistance.get(STATES_KEY) ?? []);
+
 	if (URL) {
 		const hookMiddleware = await bot.createWebhook({ domain: URL });
 		startServerWithHooks(hookMiddleware)
@@ -357,6 +384,3 @@ async function startBot() {
 }
 startBot();
 
-// Enable graceful stop
-process.once('SIGINT', () => bot.stop('SIGINT'));
-process.once('SIGTERM', () => bot.stop('SIGTERM'));
