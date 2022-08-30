@@ -30,7 +30,7 @@ async function CreatePersistance (dirPath, fullPath) {
     await fs.mkdir(dirPath, {recursive: true});                //Makes sure the folder exist
 
     const encoding = "utf-8";
-    const file = await fs.readFile(fullPath, {encoding , flag: "w+"});   //Reads the file if exist
+    const file = await fs.readFile(fullPath, {encoding , flag: "a+"});   //Reads the file if exist
 
     const jsonDB = TryParse(file);
 
@@ -54,7 +54,7 @@ async function CreatePersistance (dirPath, fullPath) {
      * @returns The item stored in the persistance object.
      */
     persistance.set = (key, value) => {
-        if (jsonDB[key]=== value) {
+        if (jsonDB[key] === value) {
             return value;
         }
 

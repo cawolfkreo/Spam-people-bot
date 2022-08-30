@@ -105,7 +105,7 @@ bot.command("add", (ctx) => {
 	if (ctx.chat.type !== "private") {
 		ctx.reply("Sorry, commands are only for PM 👌😉");
 	} else if (!found && ctx.from.username === ADMIN) {
-		let states = persistance.get(STATES_KEY);
+		const states = [].concat(persistance.get(STATES_KEY));
 		states.push({
 			username: ctx.from.username,
 			state: "a1"
@@ -166,7 +166,7 @@ bot.command("status", (ctx) => {
 		ctx.reply("Sorry, commands are only for PM 👌😉");
 	} else {
 		const enabled = persistance.get(ENABLED_KEY);
-		const victims = persistance.get(VICTIMS_KEY);
+		const victims = [].concat(persistance.get(VICTIMS_KEY));
 		let status = `The bot is currently ${(enabled ? "on 🤖 ✅" : "off 🤖 ⛔")}.` +
 		`\nThe bot is currently targeting ${victims.length === 1 ? "one victim" : `${victims.length} victims`}` +
 		"\nThe bot is happy to see you care for him and wishes you an awesome day 😊";
@@ -237,7 +237,7 @@ bot.on("text", (ctx) => {
  ====================================== */
 
 function inState(username) {
-	const states = persistance.get(STATES_KEY);
+	const states = [].concat(persistance.get(STATES_KEY));
 	const response = findInList(states, username);
 	let found = false, user = null, index = null;
 	if (response) {
@@ -250,7 +250,7 @@ function inState(username) {
 }
 
 function inVictims(username) {
-	const victims = persistance.get(VICTIMS_KEY);
+	const victims = [].concat(persistance.get(VICTIMS_KEY));
 	const response = findInList(victims, username);
 	let found = false, user = null, index = null;
 	if (response) {
@@ -281,21 +281,21 @@ function addVictimHandler(ctx) {
 	if (!handlerExp.test(msgText)) {
 		ctx.reply("The message you sent was not a correct @username. Please provide a correct one 😢\nOr type /cancel if you don't want to add anyone 😜");
 	} else {
-		const { found } = inVictims(msgText);
+		const victimHandler = msgText.replace("@", "");
+		const { found } = inVictims(victimHandler);
 		if (found) {
 			ctx.reply(`The user ${msgText} is already a victim. If you want to remove him use /remove.\nOr type /cancel if you don't want to add anyone 😜`);
 		} else {
-			const newVictimUsername = msgText.replace("@", "");
-			const victims = persistance.get(VICTIMS_KEY);
+			const victims = [].concat(persistance.get(VICTIMS_KEY));
 			victims.push({
-				username: newVictimUsername,
+				username: victimHandler,
 				messages: []
 			});
 			persistance.set(VICTIMS_KEY, victims);
 			ctx.reply("User added! now send me all the replies you want that user to have on" +
 				" a message, one by one. When you are done use /cancel to finish🤖.");
 
-			changeState(ctx.from.username, "a2", newVictimUsername);
+			changeState(ctx.from.username, "a2", victimHandler);
 		}
 	}
 }
@@ -306,7 +306,7 @@ function addVictimMessages(ctx) {
 		ctx.reply("I couldn't find the victim. Please use /cancel, then /remove and try again 😢");
 	} else {
 		const { params } = result;
-		const victims = persistance.get(VICTIMS_KEY);
+		const victims = [].concat(persistance.get(VICTIMS_KEY));
 		let searchResult = findInList(victims, params);
 		if (searchResult) {
 			let { index } = searchResult;
@@ -329,7 +329,7 @@ function removeVictims(indexes) {
 
 function changeState(username, state, params) {
 	let { found, index } = inState(username);
-	const states = persistance.get(STATES_KEY);
+	const states = [].concat(persistance.get(STATES_KEY));
 
 	if (found && state === "quit") {
 		states.splice(index, 1);
@@ -340,13 +340,13 @@ function changeState(username, state, params) {
 }
 
 function getStateParams(username) {
-	const states = persistance.get(STATES_KEY);
+	const states = [].concat(persistance.get(STATES_KEY));
 	let result = findInList(states, username);
 	return result ? { params: result.user.params, index: result.index } : "";
 }
 
 function victimsToString() {
-	const victims = persistance.get(VICTIMS_KEY);
+	const victims = [].concat(persistance.get(VICTIMS_KEY));
 	if (victims.length !== 0) {
 		let res = "";
 		victims.forEach((victim, index) => {
