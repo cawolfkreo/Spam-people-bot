@@ -11,7 +11,7 @@ if (!PORT) {
 
 const express = require("express");
 const packageInfo = require("../package.json");
-const utilities = require("./utilities");
+const { printLog } = require("./utilities");
 
 /* ======================================
 *			Server config
@@ -20,10 +20,10 @@ const app = express();
 
 app.use((req, res, next) => {
 	if (req.path !== "/") {
-		console.log(`[${utilities.dateNow()}] Called some other path.`);
+		printLog("Called some other path.");
 		return next();
 	}
-	console.log(`[${utilities.dateNow()}] Called the main path!`);
+	printLog("Called the main path!");
     res.append("Access-Control-Allow-Origin", ["https://keepnavion.cawolf.repl.co"]);
     res.append("Access-Control-Allow-Methods", "GET");
     res.append("Access-Control-Allow-Headers", "Content-Type");
@@ -44,7 +44,7 @@ function startServer() {
 	const server = app.listen(PORT,()=>{
 		const host = server.address().address;
 		const port = server.address().port;
-		console.log(`[${utilities.dateNow()}] Express web server ready! :D - on host ${host} and port ${port}`);
+		printLog(`Express web server ready! :D - on host ${host} and port ${port}`);
 	});
 }
 
