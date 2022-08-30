@@ -7,16 +7,16 @@ require("dotenv").config();
 const { TELEGRAM, ADMIN, URL } = process.env;
 
 if (!TELEGRAM) {
-	console.error("Error: No TELEGRAM variable in enviorement.\nPerhaps you forgot to include it?");
+	printError("Error: No TELEGRAM variable in enviorement.\nPerhaps you forgot to include it?");
 	process.exit(1);
 }
 
 if (!ADMIN) {
-	console.error("Error: No ADMIN variable in enviorement.\nPerhaps you forgot to include it?");
+	printError("Error: No ADMIN variable in enviorement.\nPerhaps you forgot to include it?");
 	process.exit(1);
 }
 
-const utilities = require("./imports/utilities");
+const { printLog, printError, getArgsFromMsg } = require("./imports/utilities");
 const { startServer, startServerWithHooks } = require("./imports/server");
 const { Telegraf } = require("telegraf");
 const bot = new Telegraf(TELEGRAM);
@@ -77,7 +77,7 @@ bot.command("turnoff", (ctx) => {
 	} else if (ctx.from.username === ADMIN) {
 		enabled = false;
 		ctx.reply("The bot is now off 🤖 ⛔");
-		console.log(`[${utilities.dateNow()}] Bot is Off!`);
+		printLog("Bot is Off!");
 	} else {
 		ctx.reply("You don't have permission to use that command :/");
 	}
@@ -89,7 +89,7 @@ bot.command("turnon", (ctx) => {
 	} else if (ctx.from.username === ADMIN) {
 		enabled = true;
 		ctx.reply("The bot is now on 🤖 ✅");
-		console.log(`[${utilities.dateNow()}] Bot is On!`);
+		printLog("Bot is On!");
 	} else {
 		ctx.reply("You don't have permission to use that command :/");
 	}
@@ -122,7 +122,7 @@ bot.command("remove", async (ctx) => {
 		return;
 	}
 
-	const args = utilities.getArgsFromMsg(ctx.message.text);
+	const args = getArgsFromMsg(ctx.message.text);
 	if (args.length <= 0) {
 		ctx.reply("you didn't give any params to this command. use /list and try again 😢");
 		return;
@@ -167,7 +167,7 @@ bot.command("status", (ctx) => {
 
 bot.command("ping", ctx => {
 	const options = { reply_to_message_id: ctx.message.message_id };
-	console.log(`Pong! 🤖 ${(enabled ? "✅" : "⛔")}.`, options);
+	printLog(`Pong! 🤖 ${(enabled ? "✅" : "⛔")}.`);
 	ctx.reply(`Pong! 🤖 ${(enabled ? "✅" : "⛔")}.`, options);
 });
 
@@ -206,6 +206,7 @@ bot.on("message", (ctx, next) => {
 	}
 	next();
 });
+
 bot.on("text", (ctx) => {
 	const { found, user } = inState(ctx.from.username);
 	if (found && ctx.chat.type === "private") {
@@ -352,7 +353,7 @@ async function startBot() {
 		startType = "long polling";
 	}
 
-	console.log(`[${utilities.dateNow()}] Bot is ready! :D\t\t-\tUsing ${startType}`);
+	printLog(`Bot is ready! :D\t\t-\tUsing ${startType}`);
 }
 startBot();
 

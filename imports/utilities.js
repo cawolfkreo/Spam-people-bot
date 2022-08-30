@@ -1,7 +1,7 @@
+"use strict";
 /* =============================
 *            Functions
 ================================*/
-"use strict";
 /* This function generates a new date with the current
 * time and parses it into a string for logging
  purposes.*/
@@ -13,6 +13,28 @@ function dateNow() {
 	const milis = rightNow.getMilliseconds();
 	const res = rightNow.toISOString().slice(0, 10).replace(/-/g, "/");
 	return `${res} - ${hour}:${min}:${seconds}:${milis} ${hour > 12? "pm":"am"}`;
+}
+
+/**
+ * Prints a message with the
+ * log level.
+ * @param {String} message message to print
+ */
+function printLog(message) {
+	callLog(console.log, message);
+}
+
+/**
+ * Prints a message with the
+ * error level.
+ * @param {String} message Error message to print
+ */
+function printError(message) {
+	callLog(console.error, message);
+}
+
+function callLog(logger, message) {
+	logger(`[${dateNow()}] ${message}`);
 }
 
 /**
@@ -30,5 +52,7 @@ function getArgsFromMsg(message) {
 ================================*/
 module.exports = {
 	dateNow,
-	getArgsFromMsg
+	getArgsFromMsg,
+	printLog,
+	printError
 };
