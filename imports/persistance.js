@@ -31,7 +31,7 @@ async function CreatePersistance (fileName) {
 
     const fullPath = path.concat(fileName);
     const encoding = "utf-8";
-    const file = await fs.readFile(fullPath, {encoding , flag: "r"});   //Reads the file if exist
+    const file = await fs.readFile(fullPath, {encoding , flag: "w+"});   //Reads the file if exist
 
     const jsonDB = TryParse(file);
 

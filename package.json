@@ -11,7 +11,7 @@
   "scripts": {
     "start": "node bot.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "npx nodemon bot.js"
+    "dev": "npx nodemon --ignore \"data/*\" bot.js"
   },
   "keywords": [
     "telegram",
