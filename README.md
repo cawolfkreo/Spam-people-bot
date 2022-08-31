@@ -1,4 +1,4 @@
-# ¿Have you ever wanted to spam someone?
+# Have you ever wanted to spam someone?
 ## Table of Contents
 <details><summary>Expand to see contents</summary>
   <p>

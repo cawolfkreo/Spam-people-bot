@@ -24,11 +24,11 @@ app.use((req, res, next) => {
 		next();
 		return;
 	}
-	/*printLog("Called the main path!");
+	printLog("Called the main path!");
     res.append("Access-Control-Allow-Origin", ["https://keepnavion.cawolf.repl.co"]);
     res.append("Access-Control-Allow-Methods", "GET");
     res.append("Access-Control-Allow-Headers", "Content-Type");
-	res.append("Warning", "Don't use this if you are not the owner of Navi");*/
+	res.append("Warning", "Don't use this if you are not the owner of Navi");
     next();
 });
 
