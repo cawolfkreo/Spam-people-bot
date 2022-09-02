@@ -30,7 +30,7 @@ const bot = new Telegraf(TELEGRAM);
 
 const ENABLED_KEY = "enabled";
 
-const VICTIMS_KEY = "victims"
+const VICTIMS_KEY = "victims";
 
 const STATES_KEY = "states";
 
@@ -74,7 +74,6 @@ bot.command(["start", "help"], (ctx) => {
 });
 
 bot.command("turnoff", async (ctx) => {
-	ctx.chat.type
 	if (ctx.chat.type !== "private") {
 		ctx.reply("Sorry, commands are only for PM 👌😉" + ctx.from.username);
 	} else if (ctx.from.username === ADMIN) {
@@ -388,7 +387,7 @@ async function startBot() {
 
 	if (URL) {
 		const hookMiddleware = await bot.createWebhook({ domain: URL });
-		startServerWithHooks(hookMiddleware)
+		startServerWithHooks(hookMiddleware);
 		startType = "web hooks";
 	}
 	else {

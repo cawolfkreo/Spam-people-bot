@@ -11,7 +11,7 @@ if (!PORT) {
 
 const express = require("express");
 const packageInfo = require("../package.json");
-const { printLog } = require("./utilities");
+const { printLog, printError } = require("./utilities");
 
 /* ======================================
 *			Server config
@@ -25,11 +25,11 @@ app.use((req, res, next) => {
 		return;
 	}
 	printLog("Called the main path!");
-    res.append("Access-Control-Allow-Origin", ["https://keepnavion.cawolf.repl.co"]);
-    res.append("Access-Control-Allow-Methods", "GET");
-    res.append("Access-Control-Allow-Headers", "Content-Type");
+	res.append("Access-Control-Allow-Origin", ["https://keepnavion.cawolf.repl.co"]);
+	res.append("Access-Control-Allow-Methods", "GET");
+	res.append("Access-Control-Allow-Headers", "Content-Type");
 	res.append("Warning", "Don't use this if you are not the owner of Navi");
-    next();
+	next();
 });
 
 app.get("/",(_req, res)=>{
@@ -42,6 +42,17 @@ function startServerWithHooks(botMiddleware) {
 }
 
 function startServer() {
+
+	app.use((err, req, res, next) => {
+		const mainMessage = "Found an error on the express level!!";
+		const request = JSON.stringify(req);
+		printError(mainMessage);
+		printError(request);
+		printError("================Full error:===================");
+		printError(err);
+		next();
+	});
+
 	const server = app.listen(PORT,()=>{
 		const host = server.address().address;
 		const port = server.address().port;
@@ -52,4 +63,4 @@ function startServer() {
 module.exports = {
 	startServer,
 	startServerWithHooks
-}
+};
