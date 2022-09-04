@@ -388,7 +388,7 @@ async function startBot() {
 	if (URL) {
 		/*const hookMiddleware = await bot.createWebhook({ domain: URL });
 		startServerWithHooks(hookMiddleware);*/
-		bot.launch({ webhook: { domain: URL, port: process.env.port || 8080 } });
+		bot.launch({ webhook: { domain: URL, port: process.env.PORT || 8080 } });
 		startType = "web hooks";
 	}
 	else {
