@@ -20,7 +20,7 @@ if (!ADMIN) {
 }
 
 const { printLog, printError, getArgsFromMsg } = require("./imports/utilities");
-const { startServer, startServerWithHooks } = require("./imports/server");
+const { startServer/*, startServerWithHooks*/ } = require("./imports/server");
 const { CreatePersistance } = require("./imports/persistance");
 const bot = new Telegraf(TELEGRAM);
 
@@ -386,8 +386,9 @@ async function startBot() {
 	persistance.set(STATES_KEY, persistance.get(STATES_KEY) ?? []);
 
 	if (URL) {
-		const hookMiddleware = await bot.createWebhook({ domain: URL });
-		startServerWithHooks(hookMiddleware);
+		/*const hookMiddleware = await bot.createWebhook({ domain: URL });
+		startServerWithHooks(hookMiddleware);*/
+		bot.launch({ webhook: { domain: URL } });
 		startType = "web hooks";
 	}
 	else {
