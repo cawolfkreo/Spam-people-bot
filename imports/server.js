@@ -10,15 +10,15 @@ if (!PORT) {
 }
 
 const express = require("express");
-const packageInfo = require("../package.json");
-const { printLog, printError } = require("./utilities");
-
+/*const packageInfo = require("../package.json");*/
+const { printLog, /*printError*/ } = require("./utilities");
+/*
 /* ======================================
 *			Server config
  ====================================== */
 const app = express();
 
-app.use((req, res, next) => {
+/*app.use((req, res, next) => {
 	if (req.path !== "/") {
 		printLog("Called some other path.");
 		next();
@@ -34,7 +34,7 @@ app.use((req, res, next) => {
 
 app.get("/",(_req, res)=>{
 	res.json({ version: packageInfo.version });
-});
+});*/
 
 function startServerWithHooks(botMiddleware) {
 	app.use(botMiddleware);
@@ -43,7 +43,7 @@ function startServerWithHooks(botMiddleware) {
 
 function startServer() {
 
-	app.use((err, req, res, next) => {
+	/*app.use((err, req, res, next) => {
 		const mainMessage = "Found an error on the express level!!";
 		const request = JSON.stringify(req);
 		printError(mainMessage);
@@ -51,7 +51,7 @@ function startServer() {
 		printError("================Full error:===================");
 		printError(err);
 		next();
-	});
+	});*/
 
 	const server = app.listen(PORT,()=>{
 		const host = server.address().address;
