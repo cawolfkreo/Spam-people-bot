@@ -56,8 +56,7 @@ async function startServer() {
 
 	try {
 		const host = await app.listen({port: PORT, host: "::"});
-		const { port } = fastify.addresses()[0];
-		printLog(`Express web server ready! :D - on host ${host} and port ${port}`);
+		printLog(`Express web server ready! :D - on host: ${host}`);
 	} catch (err) {
 		app.log.error(err);
 	}

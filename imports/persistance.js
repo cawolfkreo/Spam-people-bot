@@ -13,11 +13,11 @@ const { printLog, printError } = require("./utilities");
  * @returns an object either empty or parsed from the string
  */
 function TryParse(jsonString) {
-    try {
-        return JSON.parse(jsonString);
-    } catch (error) {
-        return new Object();
-    }
+	try {
+		return JSON.parse(jsonString);
+	} catch (error) {
+		return new Object();
+	}
 }
 
 /**
@@ -27,16 +27,16 @@ function TryParse(jsonString) {
  * @returns The peristance object
  */
 async function CreatePersistance (dirPath, fullPath) {
-    await fs.mkdir(dirPath, {recursive: true});                //Makes sure the folder exist
+	await fs.mkdir(dirPath, {recursive: true});                //Makes sure the folder exist
 
-    const encoding = "utf-8";
-    const file = await fs.readFile(fullPath, {encoding , flag: "a+"});   //Reads the file if exist
+	const encoding = "utf-8";
+	const file = await fs.readFile(fullPath, {encoding , flag: "a+"});   //Reads the file if exist
 
-    const jsonDB = TryParse(file);
+	const jsonDB = TryParse(file);
 
-    const persistance = {};
+	const persistance = {};
 
-    /**
+	/**
      * Retrieves an item previously stored
      * on the persistance object. If the
      * item does not exist it will return 
@@ -44,35 +44,35 @@ async function CreatePersistance (dirPath, fullPath) {
      * @param {String} key The key for the item to retrieve
      * @returns The item retrieved from the persistance object.
      */
-    persistance.get = key => jsonDB[key];
+	persistance.get = key => jsonDB[key];
 
-    /**
+	/**
      * Stores an item with the key
      * provided on the persistance object
      * @param {String} key The key for the item to store
      * @param {any} value The item to store
      * @returns The item stored in the persistance object.
      */
-    persistance.set = (key, value) => {
-        if (jsonDB[key] === value) {
-            return value;
-        }
+	persistance.set = (key, value) => {
+		if (jsonDB[key] === value) {
+			return value;
+		}
 
-        jsonDB[key] = value;
+		jsonDB[key] = value;
 
-        fs.writeFile(fullPath, JSON.stringify(jsonDB, null, 4), {encoding, flag: "w"})
-            .then(() => printLog(`DB file stored! Stored: ${JSON.stringify({key, value})}`))
-            .catch(err => {
-                printError("Persistance error!");
-                printError(err);
-            });
+		fs.writeFile(fullPath, JSON.stringify(jsonDB, null, 4), {encoding, flag: "w"})
+			.then(() => printLog(`DB file stored! Stored: ${JSON.stringify({key, value})}`))
+			.catch(err => {
+				printError("Persistance error!");
+				printError(err);
+			});
 
-        return value;
-    };
+		return value;
+	};
 
-    return persistance;
+	return persistance;
 }
 
 module.exports = {
-    CreatePersistance
-}
+	CreatePersistance
+};
