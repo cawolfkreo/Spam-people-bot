@@ -9,14 +9,15 @@ if (!PORT) {
 	process.exit(1);
 }
 
-const express = require("express");
+//const express = require("express");
+const fastify = require("fastify");
 /*const packageInfo = require("../package.json");*/
 const { printLog, /*printError*/ } = require("./utilities");
 /*
 /* ======================================
 *			Server config
  ====================================== */
-const app = express();
+const app = fastify({ logger: true });
 
 /*app.use((req, res, next) => {
 	if (req.path !== "/") {
@@ -36,12 +37,12 @@ app.get("/",(_req, res)=>{
 	res.json({ version: packageInfo.version });
 });*/
 
-function startServerWithHooks(botMiddleware) {
-	app.use(botMiddleware);
+function startServerWithHooks(secretPath, botMiddleware) {
+	app.post(secretPath, (req, res) => botMiddleware(req.raw, res.raw));
 	startServer();
 }
 
-function startServer() {
+async function startServer() {
 
 	/*app.use((err, req, res, next) => {
 		const mainMessage = "Found an error on the express level!!";
@@ -53,11 +54,19 @@ function startServer() {
 		next();
 	});*/
 
-	const server = app.listen(PORT,()=>{
+	try {
+		const host = await app.listen({port: PORT, host: "::"});
+		const { port } = fastify.addresses()[0];
+		printLog(`Express web server ready! :D - on host ${host} and port ${port}`);
+	} catch (err) {
+		app.log.error(err);
+	}
+
+	/*const server = app.listen(PORT ,async ()=>{
 		const host = server.address().address;
 		const port = server.address().port;
 		printLog(`Express web server ready! :D - on host ${host} and port ${port}`);
-	});
+	});*/
 }
 
 module.exports = {
