@@ -388,6 +388,7 @@ async function startBot() {
 	if (URL) {
 		const hookMiddleware = await bot.createWebhook({ domain: URL });
 		const secretPath = bot.secretPathComponent();
+		printLog(secretPath);
 		startServerWithHooks(secretPath, hookMiddleware);
 		startType = "web hooks";
 	}
