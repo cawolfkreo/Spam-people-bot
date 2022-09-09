@@ -2,24 +2,24 @@
 /* ======================================
 *				Imports
  ====================================== */
-const { PORT } = process.env;
+/*const { PORT } = process.env;
 
 if (!PORT) {
 	console.log("Error: No PORT variable in enviorement.\nPerhaps you forgot to include it?");
 	process.exit(1);
 }
 
-//const express = require("express");
+const express = require("express");
 const fastify = require("fastify");
-/*const packageInfo = require("../package.json");*/
-const { printLog, /*printError*/ } = require("./utilities");
-/*
+const packageInfo = require("../package.json");
+const { printLog, printError } = require("./utilities");
+
 /* ======================================
 *			Server config
  ====================================== */
-const app = fastify({ logger: true });
+/*const app = fastify({ logger: true });
 
-/*app.use((req, res, next) => {
+app.use((req, res, next) => {
 	if (req.path !== "/") {
 		printLog("Called some other path.");
 		next();
@@ -35,7 +35,7 @@ const app = fastify({ logger: true });
 
 app.get("/",(_req, res)=>{
 	res.json({ version: packageInfo.version });
-});*/
+});
 
 function startServerWithHooks(secretPath, botMiddleware) {
 	app.post(`/telegraf/${secretPath}`, (req, res) => botMiddleware(req.raw, res.raw));
@@ -44,7 +44,7 @@ function startServerWithHooks(secretPath, botMiddleware) {
 
 async function startServer() {
 
-	/*app.use((err, req, res, next) => {
+	app.use((err, req, res, next) => {
 		const mainMessage = "Found an error on the express level!!";
 		const request = JSON.stringify(req);
 		printError(mainMessage);
@@ -52,7 +52,7 @@ async function startServer() {
 		printError("================Full error:===================");
 		printError(err);
 		next();
-	});*/
+	});
 
 	try {
 		const host = await app.listen({port: PORT, host: "::"});
@@ -61,14 +61,14 @@ async function startServer() {
 		app.log.error(err);
 	}
 
-	/*const server = app.listen(PORT ,async ()=>{
+	const server = app.listen(PORT ,async ()=>{
 		const host = server.address().address;
 		const port = server.address().port;
 		printLog(`Express web server ready! :D - on host ${host} and port ${port}`);
-	});*/
+	});
 }
 
 module.exports = {
 	startServer,
 	startServerWithHooks
-};
+};*/
