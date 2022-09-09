@@ -38,7 +38,7 @@ app.get("/",(_req, res)=>{
 });*/
 
 function startServerWithHooks(secretPath, botMiddleware) {
-	app.post(secretPath, (req, res) => botMiddleware(req.raw, res.raw));
+	app.post(`/${secretPath}`, (req, res) => botMiddleware(req.raw, res.raw));
 	startServer();
 }
 
