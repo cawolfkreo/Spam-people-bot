@@ -245,7 +245,15 @@ bot.catch((err, ctx) => {
 	const chatErr = ctx.chat;
 	const metaMessage = `Error found in ${chatErr.type} chat ${chatErr.title??chatErr.username}`;
 	const message = `The message that triggered the error was: ${ctx.message?.text}`;
-	const ctxObj = JSON.stringify(ctx, null, 2);
+	const { inspect } = require("node:util");
+	//const ctxObj = JSON.stringify(ctx, null, 2);
+	const ctxObj = inspect(ctx, {
+		depth: 5,
+		compact: false,
+		getters: true,
+		numericSeparator: true,
+	});
+
 	printError(err);
 	printError(metaMessage);
 	printError(message);
