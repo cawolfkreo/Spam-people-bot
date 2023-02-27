@@ -34,40 +34,40 @@ async function CreatePersistance (dirPath, fullPath) {
 
 	const jsonDB = TryParse(file);
 
-	const persistance = {};
+	const persistance = {
+		/**
+		 * Retrieves an item previously stored
+		 * on the persistance object. If the
+		 * item does not exist it will return 
+		 * `undefined` instead.
+		 * @param {String} key The key for the item to retrieve
+		 * @returns The item retrieved from the persistance object.
+		 */
+		get: key => jsonDB[key],
 
-	/**
-     * Retrieves an item previously stored
-     * on the persistance object. If the
-     * item does not exist it will return 
-     * `undefined` instead.
-     * @param {String} key The key for the item to retrieve
-     * @returns The item retrieved from the persistance object.
-     */
-	persistance.get = key => jsonDB[key];
-
-	/**
-     * Stores an item with the key
-     * provided on the persistance object
-     * @param {String} key The key for the item to store
-     * @param {any} value The item to store
-     * @returns The item stored in the persistance object.
-     */
-	persistance.set = (key, value) => {
-		if (jsonDB[key] === value) {
+		/**
+		 * Stores an item with the key
+		 * provided on the persistance object
+		 * @param {String} key The key for the item to store
+		 * @param {any} value The item to store
+		 * @returns The item stored in the persistance object.
+		 */
+		set: (key, value) => {
+			if (jsonDB[key] === value) {
+				return value;
+			}
+	
+			jsonDB[key] = value;
+	
+			fs.writeFile(fullPath, JSON.stringify(jsonDB, null, 4), {encoding, flag: "w"})
+				.then(() => printLog(`DB file stored! Stored: ${JSON.stringify({key, value})}`))
+				.catch(err => {
+					printError("Persistance error!");
+					printError(err);
+				});
+	
 			return value;
-		}
-
-		jsonDB[key] = value;
-
-		fs.writeFile(fullPath, JSON.stringify(jsonDB, null, 4), {encoding, flag: "w"})
-			.then(() => printLog(`DB file stored! Stored: ${JSON.stringify({key, value})}`))
-			.catch(err => {
-				printError("Persistance error!");
-				printError(err);
-			});
-
-		return value;
+		},
 	};
 
 	return persistance;

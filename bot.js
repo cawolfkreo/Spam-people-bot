@@ -3,9 +3,14 @@
 *				Imports
  ====================================== */
 
+const path = require("path");
+
 require("dotenv").config();
 const { Telegraf } = require("telegraf");
-const path = require("path");
+
+const { printLog, printError, getArgsFromMsg } = require("./imports/utilities");
+//const { startServer, startServerWithHooks } = require("./imports/server");
+const { CreatePersistance } = require("./imports/persistance");
 
 const { TELEGRAM, ADMIN, PORT, URL } = process.env;
 
@@ -24,14 +29,12 @@ if (!PORT) {
 	process.exit(1);
 }
 
-const { printLog, printError, getArgsFromMsg } = require("./imports/utilities");
-//const { startServer, startServerWithHooks } = require("./imports/server");
-const { CreatePersistance } = require("./imports/persistance");
 const bot = new Telegraf(TELEGRAM);
+
 
 /* ======================================
 *			Global Variables
- ====================================== */
+====================================== */
 
 const ENABLED_KEY = "enabled";
 
@@ -187,11 +190,11 @@ bot.command("about", (ctx) => {
 	if (ctx.chat.type !== "private") {
 		ctx.reply("Sorry, commands are only for PM 👌😉");
 	} else {
-		let aboutThisBot = "this bot was made with 🤣 and some good intentions by @Cawolf." +
+		let aboutThisBot = "this bot was made with 🤣 and some good intentions by @Cawolf\\." +
 		"\nIf you want to know more of how this bot was made the source code is" +
-		" [here](https://github.com/cawolfkreo/Spam-people-bot)." +
-		"\n Have a nice day! 😄";
-		ctx.replyWithMarkdown(aboutThisBot);
+		" [here](https://github.com/cawolfkreo/Spam-people-bot)\\." +
+		"\n Have a nice day\\! 😄";
+		ctx.replyWithMarkdownV2(aboutThisBot);
 	}
 });
 
