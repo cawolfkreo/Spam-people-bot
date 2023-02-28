@@ -29,7 +29,7 @@ function printLog(message) {
  * error level.
  * @param {String} message Error message to print
  */
-function printError(message) {
+function printErrorMsg(message) {
 	callLog(console.error, message);
 }
 
@@ -54,5 +54,5 @@ module.exports = {
 	dateNow,
 	getArgsFromMsg,
 	printLog,
-	printError
+	printErrorMsg
 };

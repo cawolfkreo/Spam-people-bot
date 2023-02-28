@@ -8,19 +8,19 @@ const path = require("path");
 require("dotenv").config();
 const { Telegraf } = require("telegraf");
 
-const { printLog, printError, getArgsFromMsg } = require("./imports/utilities");
+const { printLog, printErrorMsg, getArgsFromMsg } = require("./imports/utilities");
 //const { startServer, startServerWithHooks } = require("./imports/server");
 const { CreatePersistance } = require("./imports/persistance");
 
 const { TELEGRAM, ADMIN, PORT, URL } = process.env;
 
 if (!TELEGRAM) {
-	printError("Error: No TELEGRAM variable in enviorement.\nPerhaps you forgot to include it?");
+	printErrorMsg("Error: No TELEGRAM variable in enviorement.\nPerhaps you forgot to include it?");
 	process.exit(1);
 }
 
 if (!ADMIN) {
-	printError("Error: No ADMIN variable in enviorement.\nPerhaps you forgot to include it?");
+	printErrorMsg("Error: No ADMIN variable in enviorement.\nPerhaps you forgot to include it?");
 	process.exit(1);
 }
 
@@ -51,6 +51,11 @@ let persistance = {};
 bot.use((ctx, next) => {
 	if (ctx.chat.type === "private") {
 		next();
+		return;
+	}
+
+	if(!ctx.message) {
+		// if message is undefined, we ignore this call.
 		return;
 	}
 
@@ -245,19 +250,13 @@ bot.catch((err, ctx) => {
 	const chatErr = ctx.chat;
 	const metaMessage = `Error found in ${chatErr.type} chat ${chatErr.title??chatErr.username}`;
 	const message = `The message that triggered the error was: ${ctx.message?.text}`;
-	const { inspect } = require("node:util");
 	//const ctxObj = JSON.stringify(ctx, null, 2);
-	const ctxObj = inspect(ctx, {
-		depth: 5,
-		compact: false,
-		getters: true,
-		numericSeparator: true,
-	});
+	const ctxObj = JSON.stringify({ chat: ctx.chat, update: ctx.update}, null, 2);
 
-	printError(err);
-	printError(metaMessage);
-	printError(message);
-	printError(ctxObj);
+	printErrorMsg(metaMessage);
+	printErrorMsg(message);
+	printErrorMsg(ctxObj);
+	console.error(err);
 });
 
 /* ======================================
