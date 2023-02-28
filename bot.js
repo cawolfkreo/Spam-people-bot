@@ -9,10 +9,10 @@ require("dotenv").config();
 const { Telegraf } = require("telegraf");
 
 const { printLog, printErrorMsg, getArgsFromMsg } = require("./imports/utilities");
-//const { startServer, startServerWithHooks } = require("./imports/server");
+const { startServer, startServerWithHooks } = require("./imports/server");
 const { CreatePersistance } = require("./imports/persistance");
 
-const { TELEGRAM, ADMIN, PORT, URL } = process.env;
+const { TELEGRAM, ADMIN, URL } = process.env;
 
 if (!TELEGRAM) {
 	printErrorMsg("Error: No TELEGRAM variable in enviorement.\nPerhaps you forgot to include it?");
@@ -21,11 +21,6 @@ if (!TELEGRAM) {
 
 if (!ADMIN) {
 	printErrorMsg("Error: No ADMIN variable in enviorement.\nPerhaps you forgot to include it?");
-	process.exit(1);
-}
-
-if (!PORT) {
-	console.log("Error: No PORT variable in enviorement.\nPerhaps you forgot to include it?");
 	process.exit(1);
 }
 
@@ -402,11 +397,15 @@ async function startBot() {
 
 	if (URL) {
 
-		bot.launch({ webhook: { domain: URL, port: PORT }});
+		const hookMiddleware  = await bot.createWebhook({ domain: URL });
+		const secretPath = bot.secretPathComponent();
+		startServerWithHooks(secretPath, hookMiddleware);
+
+		//bot.launch({ webhook: { domain: URL, port: PORT }});
 		startType = "web hooks";
 	}
 	else {
-		//startServer();
+		startServer();
 		bot.launch();
 		startType = "long polling";
 	}
