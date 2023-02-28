@@ -1,6 +1,6 @@
 {
   "name": "spammer-telegram-bot",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": true,
   "description": "A small telegram bot to annoy people on telegram",
   "main": "bot.js",
@@ -23,8 +23,7 @@
   "license": "MIT",
   "dependencies": {
     "dotenv": "^6.2.0",
-    "express": "^4.17.1",
-    "fastify": "^4.5.3",
+    "express": "^4.18.2",
     "telegraf": "^4.9.0"
   },
   "devDependencies": {
