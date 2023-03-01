@@ -7,6 +7,7 @@ const path = require("path");
 
 require("dotenv").config();
 const { Telegraf } = require("telegraf");
+const { message } = require("telegraf/filters");
 
 const { printLog, printErrorMsg, getArgsFromMsg } = require("./imports/utilities");
 const { startServer, startServerWithHooks } = require("./imports/server");
@@ -223,7 +224,7 @@ bot.on("message", (ctx, next) => {
 	next();
 });
 
-bot.on("text", (ctx) => {
+bot.on(message("text"), (ctx) => {
 	const { found, user } = inState(ctx.from.username);
 	if (found && ctx.chat.type === "private") {
 		switch (user.state) {
