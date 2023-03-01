@@ -8,6 +8,7 @@ const path = require("path");
 require("dotenv").config();
 const { Telegraf } = require("telegraf");
 const { message } = require("telegraf/filters");
+const { fmt, link } = require("telegraf/format");
 
 const { printLog, printErrorMsg, getArgsFromMsg } = require("./imports/utilities");
 const { startServer, startServerWithHooks } = require("./imports/server");
@@ -191,11 +192,11 @@ bot.command("about", (ctx) => {
 	if (ctx.chat.type !== "private") {
 		ctx.reply("Sorry, commands are only for PM 👌😉");
 	} else {
-		let aboutThisBot = "this bot was made with 🤣 and some good intentions by @Cawolf\\." +
-		"\nIf you want to know more of how this bot was made the source code is" +
-		" [here](https://github.com/cawolfkreo/Spam-people-bot)\\." +
-		"\n Have a nice day\\! 😄";
-		ctx.replyWithMarkdownV2(aboutThisBot);
+		const preMessage = "This bot was made with 🤣 and some good intentions by @Cawolf." + 
+		"\nIf you want to know more of how this bot was made the source code is";
+		const postMessage = "\nHave a nice day! 😄";
+		const aboutThisBot = (fmt`${preMessage} ${link("here.", "https://github.com/cawolfkreo/Spam-people-bot")} ${postMessage}`);
+		ctx.reply(aboutThisBot);
 	}
 });
 
