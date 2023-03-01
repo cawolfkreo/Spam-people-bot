@@ -40,9 +40,14 @@ app.get("/", (req, res) => {
 	res.send({ version: packageInfo.version });
 });
 
-function startServerWithHooks(secretPath, botMiddleware) {
+/* function startServerWithHooks(secretPath, botMiddleware) {
 	printLog(`The secret path is ${secretPath}`);
 	app.post(`/telegraf/${secretPath}`, (req, res) => botMiddleware(req.raw, res.raw));
+	startServer();
+} */
+
+function startServerWithHooks(secretPath, botMiddleware) {
+	app.use(botMiddleware);
 	startServer();
 }
 
